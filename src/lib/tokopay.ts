@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// Backend API URL
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+// TokoPay API URL
+const API_URL = 'https://api.tokopay.id/v1';
 
 // TokoPay API configuration from environment variables
-const MERCHANT_ID = import.meta.env.TOKOPAY_MERCHANT_ID;
-const SECRET = import.meta.env.TOKOPAY_SECRET;
+const MERCHANT_ID = import.meta.env.VITE_TOKOPAY_MERCHANT_ID;
+const SECRET = import.meta.env.VITE_TOKOPAY_SECRET;
 
 // Validate required environment variables
 if (!MERCHANT_ID || !SECRET) {
@@ -35,8 +35,8 @@ type TokopayOrderResponse = {
 
 export const createPaymentOrder = async (data: TokopayOrderRequest): Promise<TokopayOrderResponse> => {
   try {
-    // In DEV environment without backend, use mock response
-    if (import.meta.env.DEV && !import.meta.env.VITE_USE_BACKEND) {
+    // In DEV environment without credentials, use mock response
+    if (import.meta.env.DEV && (!MERCHANT_ID || !SECRET)) {
       console.log('Using mock TokoPay API response for payment processing', data);
       
       // Mock QR code string
@@ -58,8 +58,14 @@ export const createPaymentOrder = async (data: TokopayOrderRequest): Promise<Tok
       };
     }
     
-    // Call backend proxy
-    const response = await axios.post(`${API_URL}/payment/create`, data);
+    // Call TokoPay API directly
+    const params = {
+      merchant: MERCHANT_ID,
+      secret: SECRET,
+      ...data
+    };
+    
+    const response = await axios.get(`${API_URL}/order`, { params });
     return response.data;
   } catch (error) {
     console.error('Error creating payment order:', error);
@@ -69,8 +75,8 @@ export const createPaymentOrder = async (data: TokopayOrderRequest): Promise<Tok
 
 export const checkPaymentStatus = async (ref_id: string): Promise<any> => {
   try {
-    // In DEV environment without backend, use mock response
-    if (import.meta.env.DEV && !import.meta.env.VITE_USE_BACKEND) {
+    // In DEV environment without credentials, use mock response
+    if (import.meta.env.DEV && (!MERCHANT_ID || !SECRET)) {
       console.log('Using mock TokoPay API response for payment status check', ref_id);
       
       // Randomly decide status for demo purposes
@@ -87,8 +93,14 @@ export const checkPaymentStatus = async (ref_id: string): Promise<any> => {
       };
     }
     
-    // Call backend proxy
-    const response = await axios.post(`${API_URL}/payment/status`, { ref_id });
+    // Call TokoPay API directly
+    const params = {
+      merchant: MERCHANT_ID,
+      secret: SECRET,
+      ref_id
+    };
+    
+    const response = await axios.get(`${API_URL}/status`, { params });
     return response.data;
   } catch (error) {
     console.error('Error checking payment status:', error);

@@ -1,14 +1,29 @@
 import axios from 'axios';
 import { PriceType, MobileCreditProduct, ElectricityProduct, DataPackageProduct } from './api';
+import CryptoJS from 'crypto-js';
 
-// API URL (backend proxy)
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+// API URL (direct to Digiflazz)
+const API_URL = 'https://api.digiflazz.com/v1';
 
 // Default profit margins in percentage
 const DEFAULT_MARGINS = {
   'mobile-credit': 5,  // 5% margin for mobile credits
   'electricity': 3,    // 3% margin for electricity
   'data-package': 7,   // 7% margin for data packages
+};
+
+// Create signature for Digiflazz API authentication
+const createSignature = (payload: any): string => {
+  const username = import.meta.env.VITE_DIGIFLAZZ_USERNAME;
+  const apiKey = import.meta.env.VITE_DIGIFLAZZ_KEY;
+  
+  // For price list, use username + key
+  if (payload.cmd === 'pricelist') {
+    return CryptoJS.MD5(username + apiKey + 'pricelist').toString();
+  }
+  
+  // For transactions, use username + key + ref_id
+  return CryptoJS.MD5(username + apiKey + (payload.ref_id || '')).toString();
 };
 
 // Calculate selling price based on product type
@@ -64,20 +79,19 @@ const formatDataPackageProduct = (item: any): DataPackageProduct => {
   };
 };
 
-// Use backend proxy for all environments
+// Make direct API calls to Digiflazz
 const makeApiRequest = async (endpoint: string, payload: any) => {
   try {
     console.log(`Making request to ${endpoint} with payload:`, payload);
     
-    // Map Digiflazz endpoints to our backend endpoints
-    const endpointMap: { [key: string]: string } = {
-      'price-list': 'price-list',
-      'transaction': 'transaction',
-      'transaction-status': 'transaction/status'
+    // Add required Digiflazz authentication
+    const authPayload = {
+      ...payload,
+      username: import.meta.env.VITE_DIGIFLAZZ_USERNAME,
+      sign: createSignature(payload)
     };
     
-    const backendEndpoint = endpointMap[endpoint] || endpoint;
-    const response = await axios.post(`${API_URL}/${backendEndpoint}`, payload);
+    const response = await axios.post(`${API_URL}/${endpoint}`, authPayload);
     return response;
   } catch (error) {
     console.error(`Error making request to ${endpoint}:`, error);
