@@ -1,0 +1,14 @@
+{
+  "name": "quickpay-backend",
+  "version": "1.0.0",
+  "description": "Backend proxy server for Digiflazz API",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+} 

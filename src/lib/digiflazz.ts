@@ -90,15 +90,14 @@ const formatDataPackageProduct = (item: any): DataPackageProduct => {
   };
 };
 
-// Use CORS proxy for development environment
+// Use CORS proxy for local environments
 const makeApiRequest = async (endpoint: string, payload: any) => {
   try {
     console.log(`Making request to ${endpoint} with payload:`, payload);
     
-    // In development, use a CORS proxy
-    if (import.meta.env.DEV) {
-      // Option 1: Use a CORS proxy service
-      const corsProxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(`${API_URL}/${endpoint}`);
+    // Use CORS proxy for local development and preview
+    if (import.meta.env.DEV || window.location.hostname === 'localhost') {
+      const corsProxyUrl = 'https://cors-anywhere.herokuapp.com/' + `${API_URL}/${endpoint}`;
       console.log('Using CORS proxy URL:', corsProxyUrl);
       return axios.post(corsProxyUrl, payload);
     }
