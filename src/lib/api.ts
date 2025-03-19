@@ -1,4 +1,3 @@
-
 // Types
 export type PriceType = {
   basePrice: number;
@@ -28,11 +27,15 @@ export type DataPackageProduct = {
   price: PriceType;
 };
 
-// Re-export functions from digiflazz.ts to maintain backward compatibility
+// Export functions from supabaseProducts.ts
 export {
   getMobileCreditProducts,
   getElectricityProducts,
-  getDataPackageProducts,
+  getDataPackageProducts
+} from './supabaseProducts';
+
+// Keep processTransaction and checkTransactionStatus from digiflazz
+export {
   processTransaction,
   checkTransactionStatus
 } from './digiflazz';

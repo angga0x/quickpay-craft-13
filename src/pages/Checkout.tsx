@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,7 +8,7 @@ import { ArrowLeft, Receipt, BadgeCheck, PhoneCall, Mail } from 'lucide-react';
 import AnimatedNumber, { formatAsCurrency } from '@/components/ui-custom/AnimatedNumber';
 import QRISDisplay from '@/components/ui-custom/QRISDisplay';
 import PageTransition, { SlideUp } from '@/components/ui-custom/TransitionEffect';
-import { saveTransaction } from '@/lib/firebase';
+import { saveTransaction } from '@/lib/supabase';
 import { processTransaction } from '@/lib/api';
 import { createPaymentOrder } from '@/lib/tokopay';
 import { useTransactionStore } from '@/store/transactionStore';

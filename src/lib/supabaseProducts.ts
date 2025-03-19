@@ -1,0 +1,209 @@
+
+import { supabase } from "@/integrations/supabase/client";
+import mockPriceList from './mockPriceList.json';
+
+export type PriceType = {
+  basePrice: number;
+  sellingPrice: number;
+};
+
+export type Product = {
+  id: string;
+  type: 'mobile-credit' | 'electricity' | 'data-package';
+  name: string;
+  operator?: string;
+  description: string;
+  amount?: number;
+  details?: string;
+  basePrice: number;
+  sellingPrice: number;
+};
+
+export type MobileCreditProduct = {
+  product_code: string;
+  operator: string;
+  description: string;
+  amount: number;
+  price: PriceType;
+};
+
+export type ElectricityProduct = {
+  product_code: string;
+  description: string;
+  amount: number;
+  price: PriceType;
+};
+
+export type DataPackageProduct = {
+  product_code: string;
+  operator: string;
+  description: string;
+  details: string;
+  price: PriceType;
+};
+
+// Helper function to initialize products in Supabase from mock data
+export const initializeProducts = async () => {
+  try {
+    // Check if products already exist
+    const { count, error: countError } = await supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true });
+    
+    if (countError) throw countError;
+    
+    // If we already have products, don't re-initialize
+    if (count && count > 0) {
+      console.log(`Products already initialized (${count} products found)`);
+      return true;
+    }
+    
+    console.log('Initializing products from mock data...');
+    
+    // Mobile Credit Products
+    const mobileCreditProducts = mockPriceList.pulsa.map(item => ({
+      id: item.product_code,
+      type: 'mobile-credit' as const,
+      name: item.description,
+      operator: item.operator,
+      description: `${item.operator} Credit`,
+      amount: item.amount,
+      base_price: item.price.basePrice,
+      selling_price: item.price.sellingPrice,
+      active: true
+    }));
+    
+    // Electricity Products
+    const electricityProducts = mockPriceList.electricity.map(item => ({
+      id: item.product_code,
+      type: 'electricity' as const,
+      name: item.description,
+      description: 'PLN Prepaid Token',
+      amount: item.amount,
+      base_price: item.price.basePrice,
+      selling_price: item.price.sellingPrice,
+      active: true
+    }));
+    
+    // Data Package Products
+    const dataPackageProducts = mockPriceList.data.map(item => ({
+      id: item.product_code,
+      type: 'data-package' as const,
+      name: item.description,
+      operator: item.operator,
+      description: `${item.operator} Data Package`,
+      details: item.details,
+      base_price: item.price.basePrice,
+      selling_price: item.price.sellingPrice,
+      active: true
+    }));
+    
+    // Combine all products
+    const allProducts = [...mobileCreditProducts, ...electricityProducts, ...dataPackageProducts];
+    
+    // Insert products into Supabase
+    const { error } = await supabase
+      .from('products')
+      .insert(allProducts);
+    
+    if (error) throw error;
+    
+    console.log(`Successfully initialized ${allProducts.length} products`);
+    return true;
+  } catch (error) {
+    console.error('Error initializing products:', error);
+    return false;
+  }
+};
+
+// Get mobile credit products
+export const getMobileCreditProducts = async (): Promise<MobileCreditProduct[]> => {
+  try {
+    // Initialize products if needed
+    await initializeProducts();
+    
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('type', 'mobile-credit')
+      .eq('active', true);
+    
+    if (error) throw error;
+    
+    return (data || []).map(item => ({
+      product_code: item.id,
+      operator: item.operator || '',
+      description: item.name,
+      amount: item.amount || 0,
+      price: {
+        basePrice: item.base_price,
+        sellingPrice: item.selling_price
+      }
+    }));
+  } catch (error) {
+    console.error('Error fetching mobile credit products:', error);
+    // Fallback to mock data in case of error
+    return mockPriceList.pulsa;
+  }
+};
+
+// Get electricity products
+export const getElectricityProducts = async (): Promise<ElectricityProduct[]> => {
+  try {
+    // Initialize products if needed
+    await initializeProducts();
+    
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('type', 'electricity')
+      .eq('active', true);
+    
+    if (error) throw error;
+    
+    return (data || []).map(item => ({
+      product_code: item.id,
+      description: item.name,
+      amount: item.amount || 0,
+      price: {
+        basePrice: item.base_price,
+        sellingPrice: item.selling_price
+      }
+    }));
+  } catch (error) {
+    console.error('Error fetching electricity products:', error);
+    // Fallback to mock data in case of error
+    return mockPriceList.electricity;
+  }
+};
+
+// Get data package products
+export const getDataPackageProducts = async (): Promise<DataPackageProduct[]> => {
+  try {
+    // Initialize products if needed
+    await initializeProducts();
+    
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('type', 'data-package')
+      .eq('active', true);
+    
+    if (error) throw error;
+    
+    return (data || []).map(item => ({
+      product_code: item.id,
+      operator: item.operator || '',
+      description: item.name,
+      details: item.details || '',
+      price: {
+        basePrice: item.base_price,
+        sellingPrice: item.selling_price
+      }
+    }));
+  } catch (error) {
+    console.error('Error fetching data package products:', error);
+    // Fallback to mock data in case of error
+    return mockPriceList.data;
+  }
+};

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -19,7 +20,7 @@ import {
 } from 'lucide-react';
 import QRISDisplay from '@/components/ui-custom/QRISDisplay';
 import PageTransition, { SlideUp } from '@/components/ui-custom/TransitionEffect';
-import { getTransaction, Transaction } from '@/lib/firebase';
+import { getTransaction, toFirebaseTransaction, SupabaseTransaction } from '@/lib/supabase';
 import { checkTransactionStatus } from '@/lib/api';
 import { useTransactionStore } from '@/store/transactionStore';
 import { useToast } from '@/hooks/use-toast';
@@ -30,7 +31,7 @@ const TransactionDetail = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
-  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [transaction, setTransaction] = useState<SupabaseTransaction | null>(null);
   
   const { 
     qrString, 
@@ -92,7 +93,8 @@ const TransactionDetail = () => {
     try {
       setIsChecking(true);
       
-      const response = await checkTransactionStatus(transaction.transactionId);
+      // For now, we maintain the original API call format
+      const response = await checkTransactionStatus(transaction.transaction_id);
       
       setTransaction(prev => {
         if (!prev) return prev;
@@ -101,7 +103,7 @@ const TransactionDetail = () => {
           ...prev,
           status: response.status,
           details: response.details || {},
-          updatedAt: new Date()
+          updated_at: new Date()
         };
       });
       
@@ -225,7 +227,7 @@ const TransactionDetail = () => {
     return (
       transaction.status === 'pending' && 
       (
-        (transaction.qrString && transaction.expiryTime) ||
+        (transaction.qr_string && transaction.expiry_time) ||
         (qrString && expiryTime)
       )
     );
@@ -256,7 +258,7 @@ const TransactionDetail = () => {
           <div className="flex-1">
             <h1 className="text-2xl font-medium">Transaction Details</h1>
             <p className="text-sm text-muted-foreground">
-              {transaction ? `Reference: ${transaction.referenceId}` : 'Loading transaction details...'}
+              {transaction ? `Reference: ${transaction.reference_id}` : 'Loading transaction details...'}
             </p>
           </div>
           
@@ -291,9 +293,9 @@ const TransactionDetail = () => {
                             {getTypeIcon()}
                           </div>
                           <div>
-                            <h3 className="font-medium">{transaction.productName}</h3>
+                            <h3 className="font-medium">{transaction.product_name}</h3>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(transaction.createdAt).toLocaleDateString()}
+                              {new Date(transaction.created_at).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
@@ -304,17 +306,17 @@ const TransactionDetail = () => {
                       <div className="flex flex-col gap-1">
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">Transaction ID</span>
-                          <span className="text-sm font-mono">{transaction.transactionId}</span>
+                          <span className="text-sm font-mono">{transaction.transaction_id}</span>
                         </div>
                         
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">Reference ID</span>
-                          <span className="text-sm font-mono">{transaction.referenceId}</span>
+                          <span className="text-sm font-mono">{transaction.reference_id}</span>
                         </div>
                         
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">Customer</span>
-                          <span className="text-sm">{transaction.customerId}</span>
+                          <span className="text-sm">{transaction.customer_id}</span>
                         </div>
                         
                         <div className="flex justify-between items-center">
@@ -324,7 +326,7 @@ const TransactionDetail = () => {
                         
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">Date & Time</span>
-                          <span className="text-sm">{formatDate(transaction.createdAt)}</span>
+                          <span className="text-sm">{formatDate(transaction.created_at)}</span>
                         </div>
                       </div>
                       
@@ -405,10 +407,10 @@ const TransactionDetail = () => {
           <div className="space-y-6">
             {shouldShowQR() && (
               <QRISDisplay 
-                qrValue={transaction?.qrString || qrString || ''}
+                qrValue={transaction?.qr_string || qrString || ''}
                 amount={transaction?.amount || 0}
-                expiryTime={transaction?.expiryTime || expiryTime || undefined}
-                paymentUrl={transaction?.paymentUrl || undefined}
+                expiryTime={transaction?.expiry_time || expiryTime || undefined}
+                paymentUrl={transaction?.payment_url || undefined}
                 qrImageUrl={getQRImageUrl()}
               />
             )}
@@ -485,20 +487,20 @@ const TransactionDetail = () => {
   );
 };
 
-const MOCK_TRANSACTION: Transaction = {
+const MOCK_TRANSACTION: SupabaseTransaction = {
   id: 'mock-id',
-  referenceId: 'REF1234567890123',
-  transactionId: 'TRX1234567890123',
-  customerId: '0812-3456-7890',
+  reference_id: 'REF1234567890123',
+  transaction_id: 'TRX1234567890123',
+  customer_id: '0812-3456-7890',
   type: 'mobile-credit',
-  productCode: 'MC-TEL-100000',
-  productName: 'Telkomsel 100,000',
+  product_code: 'MC-TEL-100000',
+  product_name: 'Telkomsel 100,000',
   amount: 100000,
   status: 'pending',
-  qrString: '00020101021226570014A00000007750415530303611091234567890520400005303360540110215802ID5920Sample Merchant Name6013JAKARTA PUSAT6105101166304A69A',
-  expiryTime: new Date(Date.now() + 15 * 60 * 1000),
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  qr_string: '00020101021226570014A00000007750415530303611091234567890520400005303360540110215802ID5920Sample Merchant Name6013JAKARTA PUSAT6105101166304A69A',
+  expiry_time: new Date(Date.now() + 15 * 60 * 1000),
+  created_at: new Date(),
+  updated_at: new Date(),
 };
 
 export default TransactionDetail;
