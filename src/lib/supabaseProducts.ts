@@ -60,43 +60,49 @@ export const initializeProducts = async () => {
     
     console.log('Initializing products from mock data...');
     
-    // Mobile Credit Products
-    const mobileCreditProducts = mockPriceList.pulsa.map(item => ({
-      id: item.product_code,
-      type: 'mobile-credit' as const,
-      name: item.description,
-      operator: item.operator,
-      description: `${item.operator} Credit`,
-      amount: item.amount,
-      base_price: item.price.basePrice,
-      selling_price: item.price.sellingPrice,
-      active: true
-    }));
+    // Mobile Credit Products - adapt from mockPriceList format
+    const mobileCreditProducts = mockPriceList.data
+      .filter(item => item.category === "Pulsa")
+      .map(item => ({
+        id: item.buyer_sku_code,
+        type: 'mobile-credit' as const,
+        name: item.product_name,
+        operator: item.brand,
+        description: `${item.brand} Credit`,
+        amount: parseInt(item.price, 10),
+        base_price: parseInt(item.price, 10) - 1000, // Adjust as needed
+        selling_price: parseInt(item.price, 10),
+        active: true
+      }));
     
-    // Electricity Products
-    const electricityProducts = mockPriceList.electricity.map(item => ({
-      id: item.product_code,
-      type: 'electricity' as const,
-      name: item.description,
-      description: 'PLN Prepaid Token',
-      amount: item.amount,
-      base_price: item.price.basePrice,
-      selling_price: item.price.sellingPrice,
-      active: true
-    }));
+    // Electricity Products - adapt from mockPriceList format
+    const electricityProducts = mockPriceList.data
+      .filter(item => item.category === "PLN")
+      .map(item => ({
+        id: item.buyer_sku_code,
+        type: 'electricity' as const,
+        name: item.product_name,
+        description: 'PLN Prepaid Token',
+        amount: parseInt(item.price, 10),
+        base_price: parseInt(item.price, 10) - 2000, // Adjust as needed
+        selling_price: parseInt(item.price, 10),
+        active: true
+      }));
     
-    // Data Package Products
-    const dataPackageProducts = mockPriceList.data.map(item => ({
-      id: item.product_code,
-      type: 'data-package' as const,
-      name: item.description,
-      operator: item.operator,
-      description: `${item.operator} Data Package`,
-      details: item.details,
-      base_price: item.price.basePrice,
-      selling_price: item.price.sellingPrice,
-      active: true
-    }));
+    // Data Package Products - adapt from mockPriceList format
+    const dataPackageProducts = mockPriceList.data
+      .filter(item => item.category === "Data")
+      .map(item => ({
+        id: item.buyer_sku_code,
+        type: 'data-package' as const,
+        name: item.product_name,
+        operator: item.brand,
+        description: `${item.brand} Data Package`,
+        details: item.desc || item.product_name,
+        base_price: parseInt(item.price, 10) - 1500, // Adjust as needed
+        selling_price: parseInt(item.price, 10),
+        active: true
+      }));
     
     // Combine all products
     const allProducts = [...mobileCreditProducts, ...electricityProducts, ...dataPackageProducts];
@@ -143,7 +149,18 @@ export const getMobileCreditProducts = async (): Promise<MobileCreditProduct[]> 
   } catch (error) {
     console.error('Error fetching mobile credit products:', error);
     // Fallback to mock data in case of error
-    return mockPriceList.pulsa;
+    return mockPriceList.data
+      .filter(item => item.category === "Pulsa")
+      .map(item => ({
+        product_code: item.buyer_sku_code,
+        operator: item.brand,
+        description: item.product_name,
+        amount: parseInt(item.price, 10),
+        price: {
+          basePrice: parseInt(item.price, 10) - 1000,
+          sellingPrice: parseInt(item.price, 10)
+        }
+      }));
   }
 };
 
@@ -173,7 +190,17 @@ export const getElectricityProducts = async (): Promise<ElectricityProduct[]> =>
   } catch (error) {
     console.error('Error fetching electricity products:', error);
     // Fallback to mock data in case of error
-    return mockPriceList.electricity;
+    return mockPriceList.data
+      .filter(item => item.category === "PLN")
+      .map(item => ({
+        product_code: item.buyer_sku_code,
+        description: item.product_name,
+        amount: parseInt(item.price, 10),
+        price: {
+          basePrice: parseInt(item.price, 10) - 2000,
+          sellingPrice: parseInt(item.price, 10)
+        }
+      }));
   }
 };
 
@@ -195,7 +222,7 @@ export const getDataPackageProducts = async (): Promise<DataPackageProduct[]> =>
       product_code: item.id,
       operator: item.operator || '',
       description: item.name,
-      details: item.details || '',
+      details: String(item.details || ''),
       price: {
         basePrice: item.base_price,
         sellingPrice: item.selling_price
@@ -204,6 +231,17 @@ export const getDataPackageProducts = async (): Promise<DataPackageProduct[]> =>
   } catch (error) {
     console.error('Error fetching data package products:', error);
     // Fallback to mock data in case of error
-    return mockPriceList.data;
+    return mockPriceList.data
+      .filter(item => item.category === "Data")
+      .map(item => ({
+        product_code: item.buyer_sku_code,
+        operator: item.brand,
+        description: item.product_name,
+        details: String(item.desc || item.product_name),
+        price: {
+          basePrice: parseInt(item.price, 10) - 1500,
+          sellingPrice: parseInt(item.price, 10)
+        }
+      }));
   }
 };

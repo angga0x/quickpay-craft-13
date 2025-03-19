@@ -145,7 +145,7 @@ const TransactionDetail = () => {
       if (navigator.share) {
         await navigator.share({
           title: 'Transaction Details',
-          text: `${transaction.productName} for ${transaction.customerId}`,
+          text: `${transaction.product_name} for ${transaction.customer_id}`,
           url: window.location.href
         });
       } else {
