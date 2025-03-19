@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 import { PriceType, MobileCreditProduct, ElectricityProduct, DataPackageProduct } from './api';
-import * as crypto from 'crypto';
+import CryptoJS from 'crypto-js';
 
 // Digiflazz API URL
 const API_URL = 'https://api.digiflazz.com/v1';
@@ -20,13 +20,12 @@ const DEV_API_KEY = 'dev-ac3455b0-ab16-11ec-bca1-e58e09781976';
 const PROD_API_KEY = 'e3dce8f6-2a22-5985-b8ef-dd10d81c704a';
 const API_KEY = import.meta.env.VITE_DIGIFLAZZ_PRODUCTION ? PROD_API_KEY : DEV_API_KEY;
 
-// Create signature for API requests using MD5 hash
+// Create signature for API requests using MD5 hash from crypto-js
 const createSignature = (username: string, key: string, action: string): string => {
   try {
     // Create MD5 hash of username + key + action
     const signatureString = username + key + action;
-    const md5Hash = crypto.createHash('md5').update(signatureString).digest('hex');
-    return md5Hash;
+    return CryptoJS.MD5(signatureString).toString();
   } catch (error) {
     console.error('Error creating signature:', error);
     // Fallback for environments where crypto might not be available
@@ -99,12 +98,19 @@ export const getPriceList = async () => {
     
     // Create the signature using the correct format: MD5(USERNAME + API_KEY + "pricelist")
     const signature = createSignature(USERNAME, API_KEY, "pricelist");
+    console.log('Generated signature for pricelist:', signature);
+    console.log('Using username:', USERNAME);
+    console.log('Using API key:', API_KEY);
     
-    const response = await axios.post(`${API_URL}/price-list`, {
+    const payload = {
       cmd: 'prepaid',
       username: USERNAME,
       sign: signature
-    });
+    };
+    
+    console.log('Sending payload to Digiflazz:', payload);
+    
+    const response = await axios.post(`${API_URL}/price-list`, payload);
     
     return response.data;
   } catch (error) {
