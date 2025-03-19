@@ -9,6 +9,7 @@ export type PriceType = {
 
 export type Product = {
   id: string;
+  buyer_sku_code: string;
   type: 'mobile-credit' | 'electricity' | 'data-package';
   name: string;
   operator?: string;
@@ -220,6 +221,7 @@ export const syncProductsWithDigiflazz = async (): Promise<{
           // Create the product object
           const productData = {
             id: productId,
+            buyer_sku_code: productId,
             type: productType,
             name: item.product_name,
             operator: item.brand,
@@ -303,123 +305,230 @@ export const syncProductsWithDigiflazz = async (): Promise<{
 // Get mobile credit products
 export const getMobileCreditProducts = async (): Promise<MobileCreditProduct[]> => {
   try {
-    // Initialize products if needed
-    await initializeProducts();
-    
-    const { data, error } = await supabase
+    // 1. Try to get from Supabase cache first
+    const { data: cachedProducts, error: cacheError } = await supabase
       .from('products')
       .select('*')
       .eq('type', 'mobile-credit')
       .eq('active', true);
-    
-    if (error) throw error;
-    
-    return (data || []).map(item => ({
-      product_code: item.id,
-      operator: item.operator || '',
-      description: item.name,
-      amount: item.amount || 0,
-      price: {
-        basePrice: item.base_price,
-        sellingPrice: item.selling_price
-      }
-    }));
-  } catch (error) {
-    console.error('Error fetching mobile credit products:', error);
-    // Fallback to mock data in case of error
-    return mockPriceList.data
-      .filter(item => item.category === "Pulsa")
-      .map(item => ({
-        product_code: item.buyer_sku_code,
-        operator: item.brand,
-        description: item.product_name,
-        amount: parseInt(item.price, 10),
+
+    // If cache exists and no error, return cached data
+    if (!cacheError && cachedProducts && cachedProducts.length > 0) {
+      console.log('Using cached mobile credit products');
+      return cachedProducts.map(item => ({
+        product_code: item.id,
+        operator: item.operator || '',
+        description: item.name,
+        amount: item.amount || 0,
         price: {
-          basePrice: parseInt(item.price, 10) - 1000,
-          sellingPrice: parseInt(item.price, 10)
+          basePrice: item.base_price,
+          sellingPrice: item.selling_price
         }
       }));
+    }
+
+    // 2. If no cache or error, fetch from Digiflazz
+    console.log('Fetching fresh mobile credit products from Digiflazz');
+    const priceList = await getPriceList();
+    const data = priceList.data || [];
+    
+    // Filter and format products
+    const products = data
+      .filter((item: any) => 
+        item.category === 'Pulsa' && 
+        item.buyer_product_status && 
+        item.buyer_product_status === true
+      )
+      .map(item => {
+        const basePrice = parseInt(item.price, 10);
+        const sellingPrice = Math.ceil(basePrice * 1.05); // 5% margin
+
+        // 3. Save to Supabase cache
+        supabase.from('products').upsert({
+          id: item.buyer_sku_code,
+          buyer_sku_code: item.buyer_sku_code,
+          type: 'mobile-credit',
+          name: item.product_name,
+          operator: item.brand,
+          description: `${item.brand} Credit`,
+          amount: parseInt(item.buyer_sku_code.replace(/[^0-9]/g, '')) || 0,
+          base_price: basePrice,
+          selling_price: sellingPrice,
+          active: true,
+          updated_at: new Date().toISOString()
+        }).then(() => {
+          console.log(`Cached product: ${item.product_name}`);
+        });
+
+        // Return formatted product
+        return {
+          product_code: item.buyer_sku_code,
+          operator: item.brand,
+          description: item.product_name,
+          amount: parseInt(item.buyer_sku_code.replace(/[^0-9]/g, '')) || 0,
+          price: {
+            basePrice,
+            sellingPrice
+          }
+        };
+      });
+
+    return products;
+  } catch (error) {
+    console.error('Error in getMobileCreditProducts:', error);
+    throw error;
   }
 };
 
 // Get electricity products
 export const getElectricityProducts = async (): Promise<ElectricityProduct[]> => {
   try {
-    // Initialize products if needed
-    await initializeProducts();
-    
-    const { data, error } = await supabase
+    // 1. Try to get from Supabase cache first
+    const { data: cachedProducts, error: cacheError } = await supabase
       .from('products')
       .select('*')
       .eq('type', 'electricity')
       .eq('active', true);
-    
-    if (error) throw error;
-    
-    return (data || []).map(item => ({
-      product_code: item.id,
-      description: item.name,
-      amount: item.amount || 0,
-      price: {
-        basePrice: item.base_price,
-        sellingPrice: item.selling_price
-      }
-    }));
-  } catch (error) {
-    console.error('Error fetching electricity products:', error);
-    // Fallback to mock data in case of error
-    return mockPriceList.data
-      .filter(item => item.category === "PLN")
-      .map(item => ({
-        product_code: item.buyer_sku_code,
-        description: item.product_name,
-        amount: parseInt(item.price, 10),
+
+    // If cache exists and no error, return cached data
+    if (!cacheError && cachedProducts && cachedProducts.length > 0) {
+      console.log('Using cached electricity products');
+      return cachedProducts.map(item => ({
+        product_code: item.id,
+        description: item.name,
+        amount: item.amount || 0,
         price: {
-          basePrice: parseInt(item.price, 10) - 2000,
-          sellingPrice: parseInt(item.price, 10)
+          basePrice: item.base_price,
+          sellingPrice: item.selling_price
         }
       }));
+    }
+
+    // 2. If no cache or error, fetch from Digiflazz
+    console.log('Fetching fresh electricity products from Digiflazz');
+    const priceList = await getPriceList();
+    const data = priceList.data || [];
+    
+    // Filter and format products
+    const products = data
+      .filter((item: any) => 
+        item.category === 'PLN' && 
+        item.buyer_product_status && 
+        item.buyer_product_status === true
+      )
+      .map(item => {
+        const basePrice = parseInt(item.price, 10);
+        const sellingPrice = Math.ceil(basePrice * 1.03); // 3% margin
+
+        // 3. Save to Supabase cache
+        supabase.from('products').upsert({
+          id: item.buyer_sku_code,
+          buyer_sku_code: item.buyer_sku_code,
+          type: 'electricity',
+          name: item.product_name,
+          description: 'PLN Prepaid Token',
+          amount: parseInt(item.product_name.replace(/[^0-9]/g, '')) || 0,
+          base_price: basePrice,
+          selling_price: sellingPrice,
+          active: true,
+          updated_at: new Date().toISOString()
+        }).then(() => {
+          console.log(`Cached product: ${item.product_name}`);
+        });
+
+        // Return formatted product
+        return {
+          product_code: item.buyer_sku_code,
+          description: item.product_name,
+          amount: parseInt(item.product_name.replace(/[^0-9]/g, '')) || 0,
+          price: {
+            basePrice,
+            sellingPrice
+          }
+        };
+      });
+
+    return products;
+  } catch (error) {
+    console.error('Error in getElectricityProducts:', error);
+    throw error;
   }
 };
 
 // Get data package products
 export const getDataPackageProducts = async (): Promise<DataPackageProduct[]> => {
   try {
-    // Initialize products if needed
-    await initializeProducts();
-    
-    const { data, error } = await supabase
+    // 1. Try to get from Supabase cache first
+    const { data: cachedProducts, error: cacheError } = await supabase
       .from('products')
       .select('*')
       .eq('type', 'data-package')
       .eq('active', true);
-    
-    if (error) throw error;
-    
-    return (data || []).map(item => ({
-      product_code: item.id,
-      operator: item.operator || '',
-      description: item.name,
-      details: String(item.details || ''),
-      price: {
-        basePrice: item.base_price,
-        sellingPrice: item.selling_price
-      }
-    }));
-  } catch (error) {
-    console.error('Error fetching data package products:', error);
-    // Fallback to mock data in case of error
-    return mockPriceList.data
-      .filter(item => item.category === "Data")
-      .map(item => ({
-        product_code: item.buyer_sku_code,
-        operator: item.brand,
-        description: item.product_name,
-        details: String(item.desc || item.product_name),
+
+    // If cache exists and no error, return cached data
+    if (!cacheError && cachedProducts && cachedProducts.length > 0) {
+      console.log('Using cached data package products');
+      return cachedProducts.map(item => ({
+        product_code: item.id,
+        operator: item.operator || '',
+        description: item.name,
+        details: String(item.details || ''),
         price: {
-          basePrice: parseInt(item.price, 10) - 1500,
-          sellingPrice: parseInt(item.price, 10)
+          basePrice: item.base_price,
+          sellingPrice: item.selling_price
         }
       }));
+    }
+
+    // 2. If no cache or error, fetch from Digiflazz
+    console.log('Fetching fresh data package products from Digiflazz');
+    const priceList = await getPriceList();
+    const data = priceList.data || [];
+    
+    // Filter and format products
+    const products = data
+      .filter((item: any) => 
+        item.category === 'Data' && 
+        item.buyer_product_status && 
+        item.buyer_product_status === true
+      )
+      .map(item => {
+        const basePrice = parseInt(item.price, 10);
+        const sellingPrice = Math.ceil(basePrice * 1.07); // 7% margin
+
+        // 3. Save to Supabase cache
+        supabase.from('products').upsert({
+          id: item.buyer_sku_code,
+          buyer_sku_code: item.buyer_sku_code,
+          type: 'data-package',
+          name: item.product_name,
+          operator: item.brand,
+          description: `${item.brand} Data Package`,
+          details: item.desc || item.product_name,
+          base_price: basePrice,
+          selling_price: sellingPrice,
+          active: true,
+          updated_at: new Date().toISOString()
+        }).then(() => {
+          console.log(`Cached product: ${item.product_name}`);
+        });
+
+        // Return formatted product
+        return {
+          product_code: item.buyer_sku_code,
+          operator: item.brand,
+          description: item.product_name,
+          details: item.desc || '',
+          price: {
+            basePrice,
+            sellingPrice
+          }
+        };
+      });
+
+    return products;
+  } catch (error) {
+    console.error('Error in getDataPackageProducts:', error);
+    throw error;
   }
 };

@@ -1,69 +1,128 @@
-# Welcome to your Lovable project
+# QuickPay Craft
 
-## Project info
+A modern payment solution integrated with Digiflazz API.
 
-**URL**: https://lovable.dev/projects/b433c453-8ff4-47eb-b0bb-1cec8557bf09
+## Project Structure
 
-## How can I edit this code?
+```
+quickpay-craft-13/
+├── src/               # Frontend source code
+├── backend/           # Backend source code
+│   ├── src/          # Backend TypeScript files
+│   └── dist/         # Compiled backend code
+├── dist/             # Compiled frontend code
+└── public/           # Static assets
+```
 
-There are several ways of editing your application.
+## Prerequisites
 
-**Use Lovable**
+- Node.js 18 or higher
+- npm 9 or higher
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b433c453-8ff4-47eb-b0bb-1cec8557bf09) and start prompting.
+## Development Setup
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Clone the repository:
+```bash
+git clone [repository-url]
+cd quickpay-craft-13
+```
 
-**Use your preferred IDE**
+2. Install dependencies:
+```bash
+npm install
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+3. Set up environment variables:
+```bash
+# Copy example environment files
+cp backend/.env.example backend/.env
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+4. Update the environment variables in `backend/.env` with your credentials:
+- `DIGIFLAZZ_USERNAME`: Your Digiflazz username
+- `DIGIFLAZZ_DEV_KEY`: Your Digiflazz development key
+- Other variables as needed
 
-Follow these steps:
+5. Start development servers:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+For frontend:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+For backend:
+```bash
+cd backend
+npm run dev
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Building for Production
 
-**Use GitHub Codespaces**
+1. Build the entire project (frontend and backend):
+```bash
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This will:
+- Build the frontend (TypeScript compilation and Vite build)
+- Build the backend (TypeScript compilation)
+- Install all necessary dependencies
 
-## What technologies are used for this project?
+2. The build output will be:
+- Frontend: `./dist/`
+- Backend: `./backend/dist/`
 
-This project is built with .
+## Production Deployment
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. Set up production environment variables:
+```bash
+# In backend/.env
+NODE_ENV=production
+FRONTEND_URL=https://your-frontend-domain.com
+PUBLIC_URL=https://your-backend-domain.com
+DIGIFLAZZ_USERNAME=your_production_username
+DIGIFLAZZ_DEV_KEY=your_production_key
+```
 
-## How can I deploy this project?
+2. Start the production server:
+```bash
+npm run start
+```
 
-Simply open [Lovable](https://lovable.dev/projects/b433c453-8ff4-47eb-b0bb-1cec8557bf09) and click on Share -> Publish.
+## API Endpoints
 
-## I want to use a custom domain - is that possible?
+### Transaction API
+- `POST /api/transaction`
+  - Create a new transaction
+  - Body: `{ product_code, customer_id, ref_id }`
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+### Callback API
+- `POST /api/callback/digiflazz`
+  - Webhook endpoint for Digiflazz callbacks
+  - Handles transaction status updates
+
+## Features
+
+- Secure API key management
+- Transaction processing
+- Webhook handling for callbacks
+- Development and production environments
+- CORS configuration
+- TypeScript support
+
+## Security Notes
+
+- Never commit `.env` files
+- Use appropriate environment variables for different environments
+- Keep API keys secure
+- Validate all incoming webhook signatures in production
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Submit a pull request
+
+## License
+
+ISC

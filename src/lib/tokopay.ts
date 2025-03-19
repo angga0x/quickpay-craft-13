@@ -1,12 +1,14 @@
-
 import axios from 'axios';
 
-// TokoPay API URL
-const API_URL = 'https://api.tokopay.id/v1/order';
+// TokoPay API configuration from environment variables
+const API_URL = import.meta.env.VITE_TOKOPAY_API_URL || 'https://api.tokopay.id/v1';
+const MERCHANT_ID = import.meta.env.VITE_TOKOPAY_MERCHANT_ID;
+const SECRET = import.meta.env.VITE_TOKOPAY_SECRET;
 
-// API credentials - Using real credentials
-const MERCHANT_ID = 'M240413YAXSU201';
-const SECRET = 'ed4d5ab0c6d03b93ee8375fac4afec7b183e42ba97545d741ec063476ab8fc43';
+// Validate required environment variables
+if (!MERCHANT_ID || !SECRET) {
+  console.warn('TokoPay credentials not found in environment variables');
+}
 
 type TokopayOrderRequest = {
   ref_id: string;
