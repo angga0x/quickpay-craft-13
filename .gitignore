@@ -30,3 +30,4 @@ dist-ssr
 
 # Keep example file
 !.env.example
+.qodo

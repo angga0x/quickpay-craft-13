@@ -214,6 +214,53 @@ app.post('/api/callback/digiflazz', express.json(), (req: Request, res: Response
   }
 });
 
+// Tokopay payment routes
+app.post('/api/payment/create', async (req: Request, res: Response) => {
+  try {
+    const { ref_id, nominal, metode } = req.body;
+
+    // Build the API URL with query parameters
+    const url = `${process.env.TOKOPAY_API_URL}/order`;
+    const params = {
+      merchant: process.env.TOKOPAY_MERCHANT_ID,
+      secret: process.env.TOKOPAY_SECRET,
+      ref_id,
+      nominal,
+      metode
+    };
+
+    console.log('Creating payment order:', { ref_id, nominal, metode });
+    const response = await axios.get(url, { params });
+    
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error creating payment:', error);
+    res.status(500).json({ error: 'Failed to create payment' });
+  }
+});
+
+app.post('/api/payment/status', async (req: Request, res: Response) => {
+  try {
+    const { ref_id } = req.body;
+
+    // Build the API URL with query parameters
+    const url = `${process.env.TOKOPAY_API_URL}/status`;
+    const params = {
+      merchant: process.env.TOKOPAY_MERCHANT_ID,
+      secret: process.env.TOKOPAY_SECRET,
+      ref_id
+    };
+
+    console.log('Checking payment status:', ref_id);
+    const response = await axios.get(url, { params });
+    
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error checking payment status:', error);
+    res.status(500).json({ error: 'Failed to check payment status' });
+  }
+});
+
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok' });
