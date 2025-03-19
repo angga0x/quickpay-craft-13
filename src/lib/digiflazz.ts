@@ -15,17 +15,22 @@ const DEFAULT_MARGINS = {
 
 // API credentials
 // In a real app, these should be stored in environment variables
-const USERNAME = import.meta.env.VITE_DIGIFLAZZ_USERNAME || 'foxepoWjxJqo';
+const USERNAME = 'foxepoWjxJqo';
 const DEV_API_KEY = 'dev-ac3455b0-ab16-11ec-bca1-e58e09781976';
 const PROD_API_KEY = 'e3dce8f6-2a22-5985-b8ef-dd10d81c704a';
-const API_KEY = import.meta.env.VITE_DIGIFLAZZ_PRODUCTION ? PROD_API_KEY : DEV_API_KEY;
+// Force using DEV_API_KEY as default
+const API_KEY = DEV_API_KEY;
 
 // Create signature for API requests using MD5 hash from crypto-js
 const createSignature = (username: string, key: string, action: string): string => {
   try {
     // Create MD5 hash of username + key + action
     const signatureString = username + key + action;
-    return CryptoJS.MD5(signatureString).toString();
+    const signature = CryptoJS.MD5(signatureString).toString();
+    console.log('Creating signature with:', { username, key, action });
+    console.log('Signature string:', signatureString);
+    console.log('Generated signature:', signature);
+    return signature;
   } catch (error) {
     console.error('Error creating signature:', error);
     // Fallback for environments where crypto might not be available
@@ -97,10 +102,11 @@ export const getPriceList = async () => {
     }
     
     // Create the signature using the correct format: MD5(USERNAME + API_KEY + "pricelist")
-    const signature = createSignature(USERNAME, API_KEY, "pricelist");
+    // Always use DEV_API_KEY for signature calculation
+    const signature = createSignature(USERNAME, DEV_API_KEY, "pricelist");
     console.log('Generated signature for pricelist:', signature);
     console.log('Using username:', USERNAME);
-    console.log('Using API key:', API_KEY);
+    console.log('Using API key:', DEV_API_KEY);
     
     const payload = {
       cmd: 'prepaid',
