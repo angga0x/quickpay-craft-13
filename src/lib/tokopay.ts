@@ -57,7 +57,7 @@ export const createPaymentOrder = async (data: TokopayOrderRequest): Promise<Tok
     }
     
     // Build the API URL with query parameters for the real API call
-    const url = `${API_URL}?merchant=${MERCHANT_ID}&secret=${SECRET}&ref_id=${data.ref_id}&nominal=${data.nominal}&metode=${data.metode}`;
+    const url = `${API_URL}?merchant=${MERCHANT_ID}&secret=${SECRET}&ref_id=${data.ref_id}&nominal=${data.nominal}&metode=QRISREALTIME`;
     
     const response = await axios.get(url);
     
