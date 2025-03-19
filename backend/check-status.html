@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transaction Status</title>
+    <script>
+        async function makeTransaction() {
+            const ref_id = document.getElementById('ref_id').value;
+            const product_code = document.getElementById('product_code').value;
+            const customer_id = document.getElementById('customer_id').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/transaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ref_id,
+                        product_code,
+                        customer_id
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+                
+                // Update timestamp
+                document.getElementById('lastCheck').innerText = new Date().toLocaleString();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerText = `Error: ${error.message}\n\nIf you're seeing a CORS error, please restart the backend server.`;
+            }
+        }
+    </script>
+    <style>
+        body { padding: 20px; font-family: Arial, sans-serif; }
+        .input-group { margin: 10px 0; }
+        label { display: inline-block; width: 120px; }
+        input { padding: 5px; width: 200px; }
+        button { padding: 5px 10px; margin: 5px; }
+        #result { 
+            margin-top: 20px; 
+            padding: 10px; 
+            background: #f5f5f5; 
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #lastCheck { color: #666; }
+        .note {
+            margin: 10px 0;
+            padding: 10px;
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            color: #856404;
+        }
+        .info {
+            margin: 10px 0;
+            padding: 10px;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <h2>Make Transaction</h2>
+    <div class="note">
+        Note: Make sure the backend server is running on port 3000.
+    </div>
+    <div class="info">
+        <strong>About Callbacks:</strong><br>
+        Status updates will be automatically sent to the callback URL:<br>
+        <code>/api/callback/digiflazz</code><br><br>
+        The backend will receive and process these updates automatically, so there's no need to keep checking the status manually.
+    </div>
+    <div class="input-group">
+        <label>Reference ID:</label>
+        <input type="text" id="ref_id" value="test_xld_004" placeholder="Reference ID">
+    </div>
+    <div class="input-group">
+        <label>Product Code:</label>
+        <input type="text" id="product_code" value="xld25" placeholder="Product Code">
+    </div>
+    <div class="input-group">
+        <label>Customer ID:</label>
+        <input type="text" id="customer_id" value="087800001233" placeholder="Customer ID">
+    </div>
+    <div>
+        <button onclick="makeTransaction()">Make Transaction</button>
+    </div>
+    <div>Last transaction: <span id="lastCheck">Never</span></div>
+    <pre id="result">No transactions yet</pre>
+</body>
+</html> 

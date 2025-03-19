@@ -1,0 +1,15 @@
+{
+  "data": {
+    "ref_id": "test_xld_004",
+    "customer_no": "087800001233",
+    "buyer_sku_code": "xld25",
+    "message": "Sukses",
+    "status": "Sukses",
+    "rc": "00",
+    "buyer_last_saldo": 326719460,
+    "sn": "TEST/20240321123456789",
+    "price": 199800,
+    "tele": "@telegram",
+    "wa": "081234512345"
+  }
+} 
