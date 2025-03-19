@@ -1,8 +1,7 @@
 import axios from 'axios';
-import { withCorsProxy } from './corsProxy';
 
 // Backend API URL
-const API_URL = withCorsProxy(import.meta.env.VITE_API_URL || 'http://localhost:3000/api');
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // TokoPay API configuration from environment variables
 const MERCHANT_ID = import.meta.env.TOKOPAY_MERCHANT_ID;
