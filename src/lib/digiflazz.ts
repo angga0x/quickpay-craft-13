@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { PriceType, MobileCreditProduct, ElectricityProduct, DataPackageProduct } from './api';
 import CryptoJS from 'crypto-js';
@@ -91,6 +90,27 @@ const formatDataPackageProduct = (item: any): DataPackageProduct => {
   };
 };
 
+// Use CORS proxy for development environment
+const makeApiRequest = async (endpoint: string, payload: any) => {
+  try {
+    console.log(`Making request to ${endpoint} with payload:`, payload);
+    
+    // In development, use a CORS proxy
+    if (import.meta.env.DEV) {
+      // Option 1: Use a CORS proxy service
+      const corsProxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(`${API_URL}/${endpoint}`);
+      console.log('Using CORS proxy URL:', corsProxyUrl);
+      return axios.post(corsProxyUrl, payload);
+    }
+    
+    // In production, make direct request (assuming backend handles CORS)
+    return axios.post(`${API_URL}/${endpoint}`, payload);
+  } catch (error) {
+    console.error(`Error making request to ${endpoint}:`, error);
+    throw error;
+  }
+};
+
 // Get price list from Digiflazz API
 export const getPriceList = async () => {
   try {
@@ -116,12 +136,14 @@ export const getPriceList = async () => {
     
     console.log('Sending payload to Digiflazz:', payload);
     
-    const response = await axios.post(`${API_URL}/price-list`, payload);
+    const response = await makeApiRequest('price-list', payload);
     
     return response.data;
   } catch (error) {
     console.error('Error fetching price list from Digiflazz:', error);
-    throw error;
+    // Fallback to mock data if API request fails
+    console.log('Falling back to mock data due to API error');
+    return import('./mockPriceList.json');
   }
 };
 
@@ -252,7 +274,7 @@ export const processTransaction = async (data: TransactionRequest): Promise<Tran
       ...(data.callback_url && { callback_url: data.callback_url })
     };
     
-    const response = await axios.post(`${API_URL}/transaction`, requestBody);
+    const response = await makeApiRequest('transaction', requestBody);
     
     // Transform the API response to match our expected format
     // Note: This transformation would depend on the actual Digiflazz API response structure
@@ -325,11 +347,13 @@ export const checkTransactionStatus = async (transactionId: string): Promise<Tra
     // Create signature for status check
     const signature = createSignature(USERNAME, API_KEY, "checkstatus");
     
-    const response = await axios.post(`${API_URL}/transaction`, {
+    const payload = {
       username: USERNAME,
       sign: signature,
       trx_id: transactionId
-    });
+    };
+    
+    const response = await makeApiRequest('transaction', payload);
     
     // Transform the API response to match our expected format
     // Note: This transformation would depend on the actual Digiflazz API response structure
