@@ -1,3 +1,4 @@
+
 // Types
 export type PriceType = {
   basePrice: number;
@@ -31,7 +32,8 @@ export type DataPackageProduct = {
 export {
   getMobileCreditProducts,
   getElectricityProducts,
-  getDataPackageProducts
+  getDataPackageProducts,
+  syncProductsWithDigiflazz // Export the new sync function
 } from './supabaseProducts';
 
 // Keep processTransaction and checkTransactionStatus from digiflazz

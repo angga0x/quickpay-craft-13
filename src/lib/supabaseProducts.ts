@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import mockPriceList from './mockPriceList.json';
+import { getPriceList } from './digiflazz';
 
 export type PriceType = {
   basePrice: number;
@@ -119,6 +119,184 @@ export const initializeProducts = async () => {
   } catch (error) {
     console.error('Error initializing products:', error);
     return false;
+  }
+};
+
+// Sync products with Digiflazz API and update the Supabase database
+export const syncProductsWithDigiflazz = async (): Promise<{
+  added: number;
+  updated: number;
+  unchanged: number;
+  errors: number;
+}> => {
+  try {
+    console.log('Starting products synchronization with Digiflazz...');
+    
+    // Get all existing products from Supabase
+    const { data: existingProducts, error: fetchError } = await supabase
+      .from('products')
+      .select('*');
+    
+    if (fetchError) throw fetchError;
+    
+    // Create a map of existing products by ID for faster lookup
+    const existingProductsMap = new Map();
+    existingProducts?.forEach(product => {
+      existingProductsMap.set(product.id, product);
+    });
+    
+    console.log(`Found ${existingProductsMap.size} existing products in Supabase`);
+    
+    // Fetch the latest price list from Digiflazz API
+    const priceList = await getPriceList();
+    const apiProducts = priceList.data || [];
+    
+    console.log(`Fetched ${apiProducts.length} products from Digiflazz API`);
+    
+    // Track statistics
+    let stats = {
+      added: 0,
+      updated: 0,
+      unchanged: 0,
+      errors: 0
+    };
+    
+    // Process products in batches to avoid overwhelming the database
+    const batchSize = 20;
+    const batches = Math.ceil(apiProducts.length / batchSize);
+    
+    for (let i = 0; i < batches; i++) {
+      const start = i * batchSize;
+      const end = Math.min(start + batchSize, apiProducts.length);
+      const batch = apiProducts.slice(start, end);
+      
+      console.log(`Processing batch ${i + 1}/${batches} (${batch.length} products)`);
+      
+      // Process each product in the current batch
+      const batchPromises = batch.map(async (item) => {
+        try {
+          const productId = item.buyer_sku_code;
+          const existingProduct = existingProductsMap.get(productId);
+          
+          // Skip products that are not active
+          if (!item.buyer_product_status) {
+            return;
+          }
+          
+          // Determine product type
+          let productType;
+          if (item.category === 'Pulsa') {
+            productType = 'mobile-credit';
+          } else if (item.category === 'PLN') {
+            productType = 'electricity';
+          } else if (item.category === 'Data') {
+            productType = 'data-package';
+          } else {
+            // Skip products that don't fit our categories
+            return;
+          }
+          
+          // Parse price to ensure it's a number
+          const itemPrice = parseInt(item.price, 10);
+          if (isNaN(itemPrice)) {
+            console.warn(`Skipping product with invalid price: ${item.product_name}`);
+            return;
+          }
+          
+          // Determine base price with a simple formula
+          // In a real app, this might come from the API or a more complex calculation
+          let basePrice;
+          if (productType === 'mobile-credit') {
+            basePrice = itemPrice - 1000;  // 1000 IDR margin for mobile credits
+          } else if (productType === 'electricity') {
+            basePrice = itemPrice - 2000;  // 2000 IDR margin for electricity
+          } else {
+            basePrice = itemPrice - 1500;  // 1500 IDR margin for data packages
+          }
+          
+          // Ensure base price is not negative
+          basePrice = Math.max(basePrice, itemPrice * 0.95);
+          
+          // Create the product object
+          const productData = {
+            id: productId,
+            type: productType,
+            name: item.product_name,
+            operator: item.brand,
+            description: item.category === 'PLN' ? 'PLN Prepaid Token' : `${item.brand} ${item.category}`,
+            amount: productType === 'mobile-credit' ? parseInt(item.product_name.replace(/[^0-9]/g, '')) || itemPrice : itemPrice,
+            details: item.desc || item.product_name,
+            base_price: basePrice,
+            selling_price: itemPrice,
+            active: true
+          };
+          
+          if (existingProduct) {
+            // Check if any fields need updating
+            if (
+              existingProduct.name !== productData.name ||
+              existingProduct.base_price !== productData.base_price ||
+              existingProduct.selling_price !== productData.selling_price ||
+              existingProduct.description !== productData.description ||
+              existingProduct.details !== productData.details ||
+              existingProduct.active !== productData.active
+            ) {
+              // Update the existing product
+              const { error: updateError } = await supabase
+                .from('products')
+                .update({
+                  name: productData.name,
+                  description: productData.description,
+                  operator: productData.operator,
+                  amount: productData.amount,
+                  details: productData.details,
+                  base_price: productData.base_price,
+                  selling_price: productData.selling_price,
+                  active: true
+                })
+                .eq('id', productId);
+              
+              if (updateError) {
+                console.error(`Error updating product ${productId}:`, updateError);
+                stats.errors++;
+              } else {
+                console.log(`Updated product: ${productData.name}`);
+                stats.updated++;
+              }
+            } else {
+              // Product exists and is unchanged
+              stats.unchanged++;
+            }
+          } else {
+            // Insert new product
+            const { error: insertError } = await supabase
+              .from('products')
+              .insert(productData);
+            
+            if (insertError) {
+              console.error(`Error inserting product ${productId}:`, insertError);
+              stats.errors++;
+            } else {
+              console.log(`Added new product: ${productData.name}`);
+              stats.added++;
+            }
+          }
+        } catch (error) {
+          console.error('Error processing product:', error);
+          stats.errors++;
+        }
+      });
+      
+      // Wait for all operations in the current batch to complete
+      await Promise.all(batchPromises);
+      console.log(`Completed batch ${i + 1}/${batches}`);
+    }
+    
+    console.log('Product synchronization completed with stats:', stats);
+    return stats;
+  } catch (error) {
+    console.error('Error syncing products with Digiflazz:', error);
+    throw error;
   }
 };
 
