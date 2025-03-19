@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowLeft, Search, Receipt, AlertCircle } from 'lucide-react';
 import PageTransition, { SlideUp } from '@/components/ui-custom/TransitionEffect';
 import { findTransactionByReference, toRecentTransactionFormat } from '@/lib/firebase';
+import { checkPaymentStatus } from '@/lib/tokopay';
 import RecentTransactionCard, { Transaction as UITransaction } from '@/components/ui-custom/RecentTransactionCard';
 import { useToast } from '@/hooks/use-toast';
 
@@ -52,9 +54,29 @@ const TransactionCheck = () => {
         return;
       }
       
+      // Check transaction in Firebase first
       const result = await findTransactionByReference(reference.trim());
       
       if (result) {
+        // If found in Firebase, get the latest payment status from TokoPay
+        try {
+          const paymentStatus = await checkPaymentStatus(result.referenceId);
+          
+          if (paymentStatus.status && paymentStatus.data) {
+            // Update the status based on TokoPay's response
+            if (paymentStatus.data.status === 'SUCCESS' && result.status !== 'success') {
+              // Here we would update the transaction status in Firebase, but for simplicity
+              // we'll just update the status in the UI
+              result.status = 'success';
+            } else if (paymentStatus.data.status === 'FAILED' && result.status !== 'failed') {
+              result.status = 'failed';
+            }
+          }
+        } catch (error) {
+          console.error('Error checking payment status:', error);
+          // Continue with the current status if there was an error checking the payment status
+        }
+        
         setSearchResult(toRecentTransactionFormat(result));
       } else {
         setNotFound(true);

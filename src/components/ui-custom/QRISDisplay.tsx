@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Copy, CheckCheck } from 'lucide-react';
+import { Download, Copy, CheckCheck, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SlideUp } from './TransitionEffect';
 
@@ -10,6 +10,7 @@ type QRISDisplayProps = {
   qrValue: string;
   amount: number;
   expiryTime?: Date;
+  paymentUrl?: string;
   onDownload?: () => void;
   className?: string;
 };
@@ -35,6 +36,7 @@ const QRISDisplay = ({
   qrValue, 
   amount, 
   expiryTime,
+  paymentUrl,
   onDownload,
   className 
 }: QRISDisplayProps) => {
@@ -70,6 +72,12 @@ const QRISDisplay = ({
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy QR data', err);
+    }
+  };
+  
+  const handleOpenPaymentUrl = () => {
+    if (paymentUrl) {
+      window.open(paymentUrl, '_blank');
     }
   };
 
@@ -110,7 +118,7 @@ const QRISDisplay = ({
             Scan with any QRIS-compatible payment app
           </p>
           
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
             <Button 
               variant="outline" 
               size="sm" 
@@ -130,6 +138,18 @@ const QRISDisplay = ({
               <Download className="h-4 w-4" />
               Save
             </Button>
+            
+            {paymentUrl && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleOpenPaymentUrl}
+                className="gap-1.5"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Open Payment Page
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

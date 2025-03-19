@@ -10,6 +10,7 @@ import QRISDisplay from '@/components/ui-custom/QRISDisplay';
 import PageTransition, { SlideUp } from '@/components/ui-custom/TransitionEffect';
 import { saveTransaction } from '@/lib/firebase';
 import { processTransaction } from '@/lib/api';
+import { createPaymentOrder } from '@/lib/tokopay';
 import { useTransactionStore } from '@/store/transactionStore';
 import { useToast } from '@/hooks/use-toast';
 
@@ -52,8 +53,19 @@ const Checkout = () => {
       
       const referenceId = generateReferenceId();
       
-      // Call transaction processing API
-      const response = await processTransaction({
+      // Process transaction with TokoPay instead of Digiflazz
+      const paymentResponse = await createPaymentOrder({
+        ref_id: referenceId,
+        nominal: selectedProduct.price,
+        metode: 'QRIS' // Using QRIS as the payment method
+      });
+      
+      if (!paymentResponse.status) {
+        throw new Error(paymentResponse.message);
+      }
+      
+      // Call original transaction processing API (for product details)
+      const productResponse = await processTransaction({
         product_code: selectedProduct.id,
         customer_id: customerInfo.phoneNumber,
         reference_id: referenceId,
@@ -68,8 +80,8 @@ const Checkout = () => {
         // Set transaction data for next screen
         setCurrentTransaction('mock-transaction-id', referenceId);
         setQRData(
-          response.qr_string,
-          new Date(response.expiry_time)
+          paymentResponse.data.qr_string,
+          new Date(paymentResponse.data.expired_time)
         );
         
         // Navigate to transaction detail
@@ -80,22 +92,25 @@ const Checkout = () => {
         // Save transaction to Firebase
         const transactionId = await saveTransaction({
           referenceId,
-          transactionId: response.transaction_id,
+          transactionId: productResponse.transaction_id,
           customerId: customerInfo.phoneNumber,
           type: selectedProduct.type,
           productCode: selectedProduct.id,
           productName: selectedProduct.name,
           amount: selectedProduct.price,
           status: 'pending',
-          qrString: response.qr_string,
-          expiryTime: new Date(response.expiry_time)
+          qrString: paymentResponse.data.qr_string,
+          expiryTime: new Date(paymentResponse.data.expired_time),
+          paymentOrderId: paymentResponse.data.order_id,
+          paymentCode: paymentResponse.data.payment_code,
+          paymentUrl: paymentResponse.data.payment_url,
         });
         
         // Set transaction data for next screen
         setCurrentTransaction(transactionId, referenceId);
         setQRData(
-          response.qr_string,
-          new Date(response.expiry_time)
+          paymentResponse.data.qr_string,
+          new Date(paymentResponse.data.expired_time)
         );
         
         // Navigate to transaction detail
