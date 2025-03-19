@@ -1,6 +1,7 @@
 
 import axios from 'axios';
 import { PriceType, MobileCreditProduct, ElectricityProduct, DataPackageProduct } from './api';
+import * as crypto from 'crypto';
 
 // Digiflazz API URL
 const API_URL = 'https://api.digiflazz.com/v1';
@@ -19,11 +20,18 @@ const DEV_API_KEY = 'dev-ac3455b0-ab16-11ec-bca1-e58e09781976';
 const PROD_API_KEY = 'e3dce8f6-2a22-5985-b8ef-dd10d81c704a';
 const API_KEY = import.meta.env.VITE_DIGIFLAZZ_PRODUCTION ? PROD_API_KEY : DEV_API_KEY;
 
-// Create signature for API requests
-const createSignature = (username: string): string => {
-  // In a real integration, we would create an MD5 hash of username + API_KEY
-  // For this demo, we'll just use a fake signature
-  return `${username}${new Date().getTime()}`;
+// Create signature for API requests using MD5 hash
+const createSignature = (username: string, key: string, action: string): string => {
+  try {
+    // Create MD5 hash of username + key + action
+    const signatureString = username + key + action;
+    const md5Hash = crypto.createHash('md5').update(signatureString).digest('hex');
+    return md5Hash;
+  } catch (error) {
+    console.error('Error creating signature:', error);
+    // Fallback for environments where crypto might not be available
+    return `${username}${new Date().getTime()}`;
+  }
 };
 
 // Calculate selling price based on product type
@@ -89,7 +97,8 @@ export const getPriceList = async () => {
       return import('./mockPriceList.json');
     }
     
-    const signature = createSignature(USERNAME);
+    // Create the signature using the correct format: MD5(USERNAME + API_KEY + "pricelist")
+    const signature = createSignature(USERNAME, API_KEY, "pricelist");
     
     const response = await axios.post(`${API_URL}/price-list`, {
       cmd: 'prepaid',
@@ -218,7 +227,8 @@ export const processTransaction = async (data: TransactionRequest): Promise<Tran
       };
     }
     
-    const signature = createSignature(USERNAME);
+    // Create signature for transaction
+    const signature = createSignature(USERNAME, API_KEY, "topup");
     
     // Prepare the request body based on the product type
     const requestBody = {
@@ -300,7 +310,8 @@ export const checkTransactionStatus = async (transactionId: string): Promise<Tra
       };
     }
     
-    const signature = createSignature(USERNAME);
+    // Create signature for status check
+    const signature = createSignature(USERNAME, API_KEY, "checkstatus");
     
     const response = await axios.post(`${API_URL}/transaction`, {
       username: USERNAME,
