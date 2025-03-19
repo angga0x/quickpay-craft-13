@@ -1,40 +1,14 @@
 import axios from 'axios';
 import { PriceType, MobileCreditProduct, ElectricityProduct, DataPackageProduct } from './api';
-import CryptoJS from 'crypto-js';
 
 // API URL (backend proxy)
-const API_URL = import.meta.env.DEV ? 'http://localhost:3000/api' : 'https://your-production-backend.com/api';
+const API_URL = 'http://localhost:3000/api';
 
 // Default profit margins in percentage
 const DEFAULT_MARGINS = {
   'mobile-credit': 5,  // 5% margin for mobile credits
   'electricity': 3,    // 3% margin for electricity
   'data-package': 7,   // 7% margin for data packages
-};
-
-// API credentials
-// In a real app, these should be stored in environment variables
-const USERNAME = 'foxepoWjxJqo';
-const DEV_API_KEY = 'dev-ac3455b0-ab16-11ec-bca1-e58e09781976';
-const PROD_API_KEY = 'e3dce8f6-2a22-5985-b8ef-dd10d81c704a';
-// Force using DEV_API_KEY as default
-const API_KEY = DEV_API_KEY;
-
-// Create signature for API requests using MD5 hash from crypto-js
-const createSignature = (username: string, key: string, action: string): string => {
-  try {
-    // Create MD5 hash of username + key + action
-    const signatureString = username + key + action;
-    const signature = CryptoJS.MD5(signatureString).toString();
-    console.log('Creating signature with:', { username, key, action });
-    console.log('Signature string:', signatureString);
-    console.log('Generated signature:', signature);
-    return signature;
-  } catch (error) {
-    console.error('Error creating signature:', error);
-    // Fallback for environments where crypto might not be available
-    return `${username}${new Date().getTime()}`;
-  }
 };
 
 // Calculate selling price based on product type
@@ -121,23 +95,7 @@ export const getPriceList = async () => {
       return import('./mockPriceList.json');
     }
     
-    // Create the signature using the correct format: MD5(USERNAME + API_KEY + "pricelist")
-    // Always use DEV_API_KEY for signature calculation
-    const signature = createSignature(USERNAME, DEV_API_KEY, "pricelist");
-    console.log('Generated signature for pricelist:', signature);
-    console.log('Using username:', USERNAME);
-    console.log('Using API key:', DEV_API_KEY);
-    
-    const payload = {
-      cmd: 'prepaid',
-      username: USERNAME,
-      sign: signature
-    };
-    
-    console.log('Sending payload to Digiflazz:', payload);
-    
-    const response = await makeApiRequest('price-list', payload);
-    
+    const response = await makeApiRequest('price-list', { cmd: 'prepaid' });
     return response.data;
   } catch (error) {
     console.error('Error fetching price list from Digiflazz:', error);
@@ -261,23 +219,13 @@ export const processTransaction = async (data: TransactionRequest): Promise<Tran
       };
     }
     
-    // Create signature for transaction
-    const signature = createSignature(USERNAME, API_KEY, "topup");
-    
-    // Prepare the request body based on the product type
-    const requestBody = {
-      username: USERNAME,
-      sign: signature,
+    const response = await makeApiRequest('transaction', {
       buyer_sku_code: data.product_code,
       customer_no: data.customer_id,
       ref_id: data.reference_id,
       ...(data.callback_url && { callback_url: data.callback_url })
-    };
+    });
     
-    const response = await makeApiRequest('transaction', requestBody);
-    
-    // Transform the API response to match our expected format
-    // Note: This transformation would depend on the actual Digiflazz API response structure
     const result = response.data.data;
     
     return {
@@ -289,8 +237,8 @@ export const processTransaction = async (data: TransactionRequest): Promise<Tran
         name: result.product_name || `Product ${data.product_code}`
       },
       amount: parseFloat(result.price),
-      qr_string: result.qr_string || 'mock-qr-string', // Digiflazz might not provide QR strings directly
-      expiry_time: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // Set a standard expiry time
+      qr_string: result.qr_string || 'mock-qr-string',
+      expiry_time: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
       status: 'pending'
     };
   } catch (error) {
@@ -344,19 +292,7 @@ export const checkTransactionStatus = async (transactionId: string): Promise<Tra
       };
     }
     
-    // Create signature for status check
-    const signature = createSignature(USERNAME, API_KEY, "checkstatus");
-    
-    const payload = {
-      username: USERNAME,
-      sign: signature,
-      trx_id: transactionId
-    };
-    
-    const response = await makeApiRequest('transaction', payload);
-    
-    // Transform the API response to match our expected format
-    // Note: This transformation would depend on the actual Digiflazz API response structure
+    const response = await makeApiRequest('transaction-status', { trx_id: transactionId });
     const result = response.data.data;
     
     // Map Digiflazz status to our status format

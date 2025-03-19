@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import axios from 'axios';
@@ -28,7 +28,7 @@ const createSignature = (username: string, key: string, action: string): string 
 };
 
 // Proxy route for price list
-app.post('/api/price-list', async (req, res) => {
+app.post('/api/price-list', async (req: Request, res: Response) => {
   try {
     const signature = createSignature(
       process.env.DIGIFLAZZ_USERNAME!,
@@ -51,7 +51,7 @@ app.post('/api/price-list', async (req, res) => {
 });
 
 // Proxy route for transactions
-app.post('/api/transaction', async (req, res) => {
+app.post('/api/transaction', async (req: Request, res: Response) => {
   try {
     const { product_code, customer_id, reference_id, callback_url } = req.body;
 
@@ -79,7 +79,7 @@ app.post('/api/transaction', async (req, res) => {
 });
 
 // Proxy route for transaction status
-app.post('/api/transaction/status', async (req, res) => {
+app.post('/api/transaction/status', async (req: Request, res: Response) => {
   try {
     const { trx_id } = req.body;
 
@@ -104,7 +104,7 @@ app.post('/api/transaction/status', async (req, res) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok' });
 });
 
