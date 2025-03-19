@@ -2,7 +2,7 @@ import axios from 'axios';
 import { PriceType, MobileCreditProduct, ElectricityProduct, DataPackageProduct } from './api';
 
 // API URL (backend proxy)
-const API_URL = 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // Default profit margins in percentage
 const DEFAULT_MARGINS = {

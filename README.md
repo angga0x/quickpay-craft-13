@@ -78,8 +78,8 @@ Ini akan:
 ```bash
 # Di backend/.env
 NODE_ENV=production
-FRONTEND_URL=https://domain-frontend-anda.com
-PUBLIC_URL=https://domain-backend-anda.com
+FRONTEND_URL=https://pojokdigi.com
+PUBLIC_URL=https://api.pojokdigi.com
 DIGIFLAZZ_USERNAME=username_produksi_anda
 DIGIFLAZZ_DEV_KEY=kunci_produksi_anda
 ```
