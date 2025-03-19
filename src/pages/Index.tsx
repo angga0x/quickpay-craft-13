@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -7,14 +6,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { CreditCard, Zap, Radio, Search, Clock } from 'lucide-react';
 import SearchInput from '@/components/ui-custom/SearchInput';
-import RecentTransactionCard, { Transaction } from '@/components/ui-custom/RecentTransactionCard';
+import RecentTransactionCard, { Transaction as UITransaction } from '@/components/ui-custom/RecentTransactionCard';
 import { StaggerContainer, StaggerItem, SlideUp } from '@/components/ui-custom/TransitionEffect';
-import { getRecentTransactions } from '@/lib/firebase';
+import { getRecentTransactions, toRecentTransactionFormat } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [search, setSearch] = useState('');
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<UITransaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -31,7 +30,9 @@ const Index = () => {
         }
 
         const data = await getRecentTransactions(5);
-        setTransactions(data);
+        // Transform the data to match the expected format
+        const formattedData = data.map(toRecentTransactionFormat);
+        setTransactions(formattedData);
       } catch (error) {
         console.error('Error fetching transactions:', error);
         toast({
@@ -186,7 +187,7 @@ const Index = () => {
 };
 
 // Mock transaction data for development
-const MOCK_TRANSACTIONS: Transaction[] = [
+const MOCK_TRANSACTIONS: UITransaction[] = [
   {
     id: '1',
     type: 'mobile-credit',

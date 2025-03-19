@@ -1,4 +1,3 @@
-
 import { initializeApp } from 'firebase/app';
 import { 
   getFirestore, 
@@ -26,8 +25,17 @@ const firebaseConfig = {
   appId: "1:851204211589:web:54ebab7e7c5c0ce44e1a22"
 };
 
-// Initialize Firebase - in a real app, use environment variables for config
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase once - in a real app, use environment variables for config
+let app;
+try {
+  app = initializeApp(firebaseConfig);
+} catch (error) {
+  // Ignore the "Firebase App named '[DEFAULT]' already exists" error
+  if (error.code !== 'app/duplicate-app') {
+    throw error;
+  }
+}
+
 const db = getFirestore(app);
 
 // Transaction types
@@ -50,7 +58,11 @@ export type Transaction = {
   expiryTime: Date;
   createdAt: Date;
   updatedAt: Date;
+  details?: Record<string, any>;
 };
+
+// For backward compatibility, also export as FirebaseTransaction
+export type FirebaseTransaction = Transaction;
 
 export type TransactionData = {
   referenceId: string;
@@ -131,6 +143,9 @@ export const getTransaction = async (id: string): Promise<Transaction | null> =>
     throw error;
   }
 };
+
+// For backward compatibility, also export as getTransactionById
+export const getTransactionById = getTransaction;
 
 // Update transaction status
 export const updateTransactionStatus = async (
@@ -260,6 +275,19 @@ export const findTransactionByReference = async (referenceId: string): Promise<T
     console.error('Error finding transaction by reference:', error);
     throw error;
   }
+};
+
+// Helper function to convert Firebase Transaction to RecentTransactionCard.Transaction
+export const toRecentTransactionFormat = (transaction: Transaction) => {
+  return {
+    id: transaction.id,
+    type: transaction.type,
+    productName: transaction.productName,
+    amount: transaction.amount,
+    customerDetail: transaction.customerId,
+    status: transaction.status,
+    date: transaction.createdAt
+  };
 };
 
 export default db;

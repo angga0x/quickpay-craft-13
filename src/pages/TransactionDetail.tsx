@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -20,7 +19,7 @@ import {
 } from 'lucide-react';
 import QRISDisplay from '@/components/ui-custom/QRISDisplay';
 import PageTransition, { SlideUp } from '@/components/ui-custom/TransitionEffect';
-import { getTransactionById, FirebaseTransaction } from '@/lib/firebase';
+import { getTransaction, Transaction } from '@/lib/firebase';
 import { checkTransactionStatus } from '@/lib/api';
 import { useTransactionStore } from '@/store/transactionStore';
 import { useToast } from '@/hooks/use-toast';
@@ -31,7 +30,7 @@ const TransactionDetail = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
-  const [transaction, setTransaction] = useState<FirebaseTransaction | null>(null);
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
   
   const { 
     qrString, 
@@ -39,10 +38,8 @@ const TransactionDetail = () => {
     currentTransactionId
   } = useTransactionStore();
   
-  // Check if there is a transaction ID in the URL or in the store
   const transactionId = id || currentTransactionId;
   
-  // Fetch transaction data
   useEffect(() => {
     if (!transactionId) {
       navigate('/');
@@ -54,7 +51,6 @@ const TransactionDetail = () => {
         setIsLoading(true);
         
         if (import.meta.env.DEV) {
-          // In development, create mock data
           setTimeout(() => {
             setTransaction(MOCK_TRANSACTION);
             setIsLoading(false);
@@ -62,7 +58,7 @@ const TransactionDetail = () => {
           return;
         }
         
-        const data = await getTransactionById(transactionId);
+        const data = await getTransaction(transactionId);
         
         if (!data) {
           toast({
@@ -90,17 +86,14 @@ const TransactionDetail = () => {
     fetchTransaction();
   }, [transactionId, navigate, toast]);
   
-  // Handle check status
   const handleCheckStatus = async () => {
     if (!transaction || isChecking) return;
     
     try {
       setIsChecking(true);
       
-      // Call transaction status check API
       const response = await checkTransactionStatus(transaction.transactionId);
       
-      // Update local state
       setTransaction(prev => {
         if (!prev) return prev;
         
@@ -112,7 +105,6 @@ const TransactionDetail = () => {
         };
       });
       
-      // Show status toast
       if (response.status === 'success') {
         toast({
           title: 'Payment successful',
@@ -144,7 +136,6 @@ const TransactionDetail = () => {
     }
   };
   
-  // Handle share transaction
   const handleShare = async () => {
     if (!transaction) return;
     
@@ -156,7 +147,6 @@ const TransactionDetail = () => {
           url: window.location.href
         });
       } else {
-        // Fallback - copy to clipboard
         await navigator.clipboard.writeText(window.location.href);
         toast({
           title: 'Link copied',
@@ -168,7 +158,6 @@ const TransactionDetail = () => {
     }
   };
   
-  // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -177,7 +166,6 @@ const TransactionDetail = () => {
     }).format(amount);
   };
   
-  // Get icon based on transaction type
   const getTypeIcon = () => {
     if (!transaction) return null;
     
@@ -191,7 +179,6 @@ const TransactionDetail = () => {
     }
   };
   
-  // Get status badge color and icon
   const getStatusBadge = () => {
     if (!transaction) return null;
     
@@ -221,7 +208,6 @@ const TransactionDetail = () => {
     );
   };
   
-  // Format date
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
@@ -233,11 +219,9 @@ const TransactionDetail = () => {
     }).format(date);
   };
   
-  // Determine if we should show the QR code
   const shouldShowQR = () => {
     if (!transaction) return false;
     
-    // Show QR if transaction is pending and we have QR data
     return (
       transaction.status === 'pending' && 
       (
@@ -250,7 +234,6 @@ const TransactionDetail = () => {
   return (
     <PageTransition>
       <div className="container max-w-5xl mx-auto px-6 py-8">
-        {/* Page Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -284,7 +267,6 @@ const TransactionDetail = () => {
         </motion.div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Transaction Details */}
           <div className="space-y-6">
             <SlideUp>
               <Card>
@@ -414,7 +396,6 @@ const TransactionDetail = () => {
             )}
           </div>
           
-          {/* QR Code or Success/Failure Messages */}
           <div className="space-y-6">
             {shouldShowQR() && (
               <QRISDisplay 
@@ -496,8 +477,7 @@ const TransactionDetail = () => {
   );
 };
 
-// Mock transaction for development
-const MOCK_TRANSACTION: FirebaseTransaction = {
+const MOCK_TRANSACTION: Transaction = {
   id: 'mock-id',
   referenceId: 'REF1234567890123',
   transactionId: 'TRX1234567890123',
@@ -508,7 +488,7 @@ const MOCK_TRANSACTION: FirebaseTransaction = {
   amount: 100000,
   status: 'pending',
   qrString: '00020101021226570014A00000007750415530303611091234567890520400005303360540110215802ID5920Sample Merchant Name6013JAKARTA PUSAT6105101166304A69A',
-  expiryTime: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes from now
+  expiryTime: new Date(Date.now() + 15 * 60 * 1000),
   createdAt: new Date(),
   updatedAt: new Date(),
 };

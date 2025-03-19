@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,8 +6,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Search, Receipt, AlertCircle } from 'lucide-react';
 import PageTransition, { SlideUp } from '@/components/ui-custom/TransitionEffect';
-import { findTransactionByReference } from '@/lib/firebase';
-import RecentTransactionCard, { Transaction } from '@/components/ui-custom/RecentTransactionCard';
+import { findTransactionByReference, toRecentTransactionFormat } from '@/lib/firebase';
+import RecentTransactionCard, { Transaction as UITransaction } from '@/components/ui-custom/RecentTransactionCard';
 import { useToast } from '@/hooks/use-toast';
 
 const TransactionCheck = () => {
@@ -16,19 +15,16 @@ const TransactionCheck = () => {
   const { toast } = useToast();
   const [reference, setReference] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResult, setSearchResult] = useState<Transaction | null>(null);
+  const [searchResult, setSearchResult] = useState<UITransaction | null>(null);
   const [notFound, setNotFound] = useState(false);
   
-  // Handle reference input change
   const handleReferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setReference(e.target.value);
     
-    // Reset search state when input changes
     if (searchResult) setSearchResult(null);
     if (notFound) setNotFound(false);
   };
   
-  // Handle search transaction
   const handleSearch = async () => {
     if (!reference.trim()) {
       toast({
@@ -45,7 +41,6 @@ const TransactionCheck = () => {
       setNotFound(false);
       
       if (import.meta.env.DEV) {
-        // In development, return mock data or simulate not found
         setTimeout(() => {
           if (reference.includes('not-found')) {
             setNotFound(true);
@@ -60,7 +55,7 @@ const TransactionCheck = () => {
       const result = await findTransactionByReference(reference.trim());
       
       if (result) {
-        setSearchResult(result);
+        setSearchResult(toRecentTransactionFormat(result));
       } else {
         setNotFound(true);
         toast({
@@ -81,7 +76,6 @@ const TransactionCheck = () => {
     }
   };
   
-  // Handle view transaction details
   const handleViewTransaction = () => {
     if (searchResult) {
       navigate(`/transaction/${searchResult.id}`);
@@ -91,7 +85,6 @@ const TransactionCheck = () => {
   return (
     <PageTransition>
       <div className="container max-w-5xl mx-auto px-6 py-8">
-        {/* Page Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -114,7 +107,6 @@ const TransactionCheck = () => {
         </motion.div>
         
         <div className="max-w-2xl mx-auto space-y-8">
-          {/* Search Form */}
           <SlideUp>
             <Card>
               <CardContent className="p-6 space-y-6">
@@ -152,7 +144,6 @@ const TransactionCheck = () => {
             </Card>
           </SlideUp>
           
-          {/* Search Result */}
           {isSearching && (
             <div className="h-32 rounded-lg loading-placeholder" />
           )}
@@ -200,15 +191,14 @@ const TransactionCheck = () => {
   );
 };
 
-// Mock transaction for development
-const MOCK_TRANSACTION: Transaction = {
+const MOCK_TRANSACTION: UITransaction = {
   id: 'mock-transaction-id',
   type: 'mobile-credit',
   productName: 'Telkomsel 100,000',
   amount: 100000,
   customerDetail: '0812-3456-7890',
   status: 'success',
-  date: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+  date: new Date(Date.now() - 2 * 60 * 60 * 1000),
 };
 
 export default TransactionCheck;
