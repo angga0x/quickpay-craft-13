@@ -18,9 +18,10 @@ import {
 import SearchInput from '@/components/ui-custom/SearchInput';
 import ProductCard, { Product } from '@/components/ui-custom/ProductCard';
 import PageTransition, { SlideUp } from '@/components/ui-custom/TransitionEffect';
-import { getMobileCreditProducts } from '@/lib/api';
+import { getMobileCreditProducts } from '@/lib/digiflazz';
 import { useTransactionStore } from '@/store/transactionStore';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from "@/integrations/supabase/client";
 
 const formatPhone = (value: string) => {
   if (!value) return value;
@@ -60,7 +61,50 @@ const MobileCredit = () => {
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
+      
+      // Fetch products directly from Digiflazz API
       const response = await getMobileCreditProducts();
+      
+      // Store fetched products in Supabase
+      for (const item of response) {
+        // Check if product already exists in Supabase
+        const { data: existingProduct } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', item.product_code)
+          .single();
+        
+        if (existingProduct) {
+          // Update existing product
+          await supabase
+            .from('products')
+            .update({
+              name: item.description,
+              operator: item.operator,
+              amount: item.amount,
+              base_price: item.price.basePrice,
+              selling_price: item.price.sellingPrice,
+              active: true,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', item.product_code);
+        } else {
+          // Insert new product
+          await supabase
+            .from('products')
+            .insert({
+              id: item.product_code,
+              type: 'mobile-credit',
+              name: item.description,
+              operator: item.operator,
+              description: `${item.operator} Credit`,
+              amount: item.amount,
+              base_price: item.price.basePrice,
+              selling_price: item.price.sellingPrice,
+              active: true
+            });
+        }
+      }
       
       // Map API response to our Product type
       const mappedProducts = response.map(item => ({
@@ -86,6 +130,41 @@ const MobileCredit = () => {
         description: 'Please try again later',
         variant: 'destructive',
       });
+      
+      // If direct fetching fails, try getting from Supabase as fallback
+      try {
+        const { data } = await supabase
+          .from('products')
+          .select('*')
+          .eq('type', 'mobile-credit')
+          .eq('active', true);
+        
+        if (data && data.length > 0) {
+          const mappedProducts = data.map(item => ({
+            id: item.id,
+            name: item.name,
+            description: item.description || `${item.operator} Credit`,
+            price: item.selling_price,
+            basePrice: item.base_price,
+            type: 'mobile-credit' as const,
+            details: [
+              {
+                label: 'Operator',
+                value: item.operator || ''
+              }
+            ]
+          }));
+          
+          setProducts(mappedProducts);
+          toast({
+            title: 'Using cached products',
+            description: 'Could not fetch fresh data from provider',
+            variant: 'default',
+          });
+        }
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+      }
     } finally {
       setIsLoading(false);
     }

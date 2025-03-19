@@ -28,16 +28,11 @@ export type DataPackageProduct = {
   price: PriceType;
 };
 
-// Export functions from supabaseProducts.ts
+// Export functions directly from digiflazz.ts
 export {
   getMobileCreditProducts,
   getElectricityProducts,
   getDataPackageProducts,
-  syncProductsWithDigiflazz // Export the new sync function
-} from './supabaseProducts';
-
-// Keep processTransaction and checkTransactionStatus from digiflazz
-export {
   processTransaction,
   checkTransactionStatus
 } from './digiflazz';
