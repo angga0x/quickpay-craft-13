@@ -15,19 +15,18 @@ type TokopayOrderRequest = {
   metode: string;
 };
 
+// Updated to match the actual API response structure
 type TokopayOrderResponse = {
-  status: boolean;
-  message: string;
+  status: string;
   data: {
-    order_id: string;
-    ref_id: string;
-    nominal: number;
-    metode: string;
-    payment_name: string;
-    payment_code: string;
-    payment_url: string;
+    other: string;
+    panduan_pembayaran: string;
+    pay_url: string;
+    qr_link: string;
     qr_string: string;
-    expired_time: string; // ISO date string
+    total_bayar: number;
+    total_diterima: number;
+    trx_id: string;
   };
 };
 
@@ -40,20 +39,18 @@ export const createPaymentOrder = async (data: TokopayOrderRequest): Promise<Tok
       // Mock QR code string
       const mockQrString = `00020101021226570014A00000007750415530303611012345678901520400005303360540${data.ref_id}5802ID5920TokoPay Merchant6013JAKARTA PUSAT6105101166304A69A`;
       
-      // Mock payment response
+      // Mock payment response with the new structure
       return {
-        status: true,
-        message: 'Success',
+        status: "Success",
         data: {
-          order_id: `ORD-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-          ref_id: data.ref_id,
-          nominal: data.nominal,
-          metode: data.metode,
-          payment_name: 'QRIS',
-          payment_code: mockQrString,
-          payment_url: `https://tokopay.id/payment/${data.ref_id}`,
+          other: "",
+          panduan_pembayaran: "",
+          pay_url: `https://tokopay.id/payment/${data.ref_id}`,
+          qr_link: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(mockQrString)}`,
           qr_string: mockQrString,
-          expired_time: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 minutes from now
+          total_bayar: data.nominal,
+          total_diterima: data.nominal * 0.99, // Simulate a small fee
+          trx_id: `TP-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
         }
       };
     }
@@ -81,8 +78,7 @@ export const checkPaymentStatus = async (ref_id: string): Promise<any> => {
       const randomStatus = statusOptions[Math.floor(Math.random() * statusOptions.length)];
       
       return {
-        status: true,
-        message: 'Success',
+        status: "Success",
         data: {
           ref_id: ref_id,
           status: randomStatus,

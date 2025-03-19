@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -30,20 +29,17 @@ const Checkout = () => {
     expiryTime
   } = useTransactionStore();
   
-  // Redirect if no product is selected
   if (!selectedProduct || !customerInfo) {
     navigate('/');
     return null;
   }
   
-  // Generate reference ID
   const generateReferenceId = () => {
     const timestamp = Date.now().toString();
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     return `REF${timestamp}${random}`;
   };
   
-  // Handle payment process
   const handleProcessPayment = async () => {
     if (isProcessing) return;
     
@@ -53,18 +49,16 @@ const Checkout = () => {
       
       const referenceId = generateReferenceId();
       
-      // Process transaction with TokoPay instead of Digiflazz
       const paymentResponse = await createPaymentOrder({
         ref_id: referenceId,
         nominal: selectedProduct.price,
-        metode: 'QRIS' // Using QRIS as the payment method
+        metode: 'QRIS'
       });
       
-      if (!paymentResponse.status) {
-        throw new Error(paymentResponse.message);
+      if (paymentResponse.status !== "Success") {
+        throw new Error("Payment processing failed");
       }
       
-      // Call original transaction processing API (for product details)
       const productResponse = await processTransaction({
         product_code: selectedProduct.id,
         customer_id: customerInfo.phoneNumber,
@@ -72,24 +66,19 @@ const Checkout = () => {
         type: selectedProduct.type
       });
       
-      // Save transaction to Firebase (or mock in development)
+      const expiryTime = new Date(Date.now() + 15 * 60 * 1000);
+      
       if (import.meta.env.DEV) {
-        // Mock a successful transaction ID
         console.log('DEV mode: Mocking transaction save');
-        
-        // Set transaction data for next screen
         setCurrentTransaction('mock-transaction-id', referenceId);
         setQRData(
           paymentResponse.data.qr_string,
-          new Date(paymentResponse.data.expired_time)
+          expiryTime
         );
-        
-        // Navigate to transaction detail
         setTimeout(() => {
           navigate('/transaction/mock-transaction-id');
         }, 1000);
       } else {
-        // Save transaction to Firebase
         const transactionId = await saveTransaction({
           referenceId,
           transactionId: productResponse.transaction_id,
@@ -100,20 +89,22 @@ const Checkout = () => {
           amount: selectedProduct.price,
           status: 'pending',
           qrString: paymentResponse.data.qr_string,
-          expiryTime: new Date(paymentResponse.data.expired_time),
-          paymentOrderId: paymentResponse.data.order_id,
-          paymentCode: paymentResponse.data.payment_code,
-          paymentUrl: paymentResponse.data.payment_url,
+          expiryTime: expiryTime,
+          paymentOrderId: paymentResponse.data.trx_id,
+          paymentCode: paymentResponse.data.qr_string,
+          paymentUrl: paymentResponse.data.pay_url,
+          details: {
+            totalBayar: paymentResponse.data.total_bayar,
+            totalDiterima: paymentResponse.data.total_diterima,
+            qrLink: paymentResponse.data.qr_link
+          }
         });
         
-        // Set transaction data for next screen
         setCurrentTransaction(transactionId, referenceId);
         setQRData(
           paymentResponse.data.qr_string,
-          new Date(paymentResponse.data.expired_time)
+          expiryTime
         );
-        
-        // Navigate to transaction detail
         navigate(`/transaction/${transactionId}`);
       }
       
@@ -134,16 +125,13 @@ const Checkout = () => {
     }
   };
   
-  // Handle download QR code
   const handleDownloadQR = () => {
-    // Implementation would fetch and download the QR code image
     toast({
       title: "QR Code saved",
       description: "QR code has been saved to your device"
     });
   };
   
-  // Format customer detail display based on product type
   const getCustomerDetail = () => {
     switch (selectedProduct.type) {
       case 'mobile-credit':
@@ -154,7 +142,6 @@ const Checkout = () => {
     }
   };
   
-  // Get icon for customer detail based on product type
   const getCustomerIcon = () => {
     switch (selectedProduct.type) {
       case 'mobile-credit':
@@ -168,7 +155,6 @@ const Checkout = () => {
   return (
     <PageTransition>
       <div className="container max-w-5xl mx-auto px-6 py-8">
-        {/* Page Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -191,7 +177,6 @@ const Checkout = () => {
         </motion.div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Order Summary */}
           <div className="space-y-6">
             <SlideUp>
               <Card>
@@ -264,7 +249,6 @@ const Checkout = () => {
             </SlideUp>
           </div>
           
-          {/* Payment Section */}
           <div className="space-y-6">
             {qrString && expiryTime ? (
               <QRISDisplay 

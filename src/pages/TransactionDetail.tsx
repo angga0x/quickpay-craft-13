@@ -231,6 +231,12 @@ const TransactionDetail = () => {
     );
   };
   
+  const getQRImageUrl = () => {
+    if (!transaction) return undefined;
+    
+    return transaction.details?.qrLink;
+  };
+  
   return (
     <PageTransition>
       <div className="container max-w-5xl mx-auto px-6 py-8">
@@ -402,6 +408,8 @@ const TransactionDetail = () => {
                 qrValue={transaction?.qrString || qrString || ''}
                 amount={transaction?.amount || 0}
                 expiryTime={transaction?.expiryTime || expiryTime || undefined}
+                paymentUrl={transaction?.paymentUrl || undefined}
+                qrImageUrl={getQRImageUrl()}
               />
             )}
             

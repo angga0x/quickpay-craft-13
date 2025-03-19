@@ -59,6 +59,9 @@ export type Transaction = {
   createdAt: Date;
   updatedAt: Date;
   details?: Record<string, any>;
+  paymentOrderId?: string; // Added this field
+  paymentCode?: string;    // Added this field
+  paymentUrl?: string;     // Added this field
 };
 
 // For backward compatibility, also export as FirebaseTransaction
@@ -75,6 +78,10 @@ export type TransactionData = {
   status: TransactionStatus;
   qrString: string;
   expiryTime: Date;
+  paymentOrderId?: string; // Added this field to fix the TS error
+  paymentCode?: string;    // Added this field to match existing usage
+  paymentUrl?: string;     // Added this field to match existing usage
+  details?: Record<string, any>; // Added this field for consistency
 };
 
 // Save a transaction

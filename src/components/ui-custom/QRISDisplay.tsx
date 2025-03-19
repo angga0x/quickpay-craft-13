@@ -13,6 +13,7 @@ type QRISDisplayProps = {
   paymentUrl?: string;
   onDownload?: () => void;
   className?: string;
+  qrImageUrl?: string; // Add support for direct QR image URL
 };
 
 const formatCurrency = (amount: number) => {
@@ -38,7 +39,8 @@ const QRISDisplay = ({
   expiryTime,
   paymentUrl,
   onDownload,
-  className 
+  className,
+  qrImageUrl 
 }: QRISDisplayProps) => {
   const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -106,11 +108,19 @@ const QRISDisplay = ({
               transition={{ delay: 0.2, duration: 0.5 }}
               className="bg-white p-4 rounded-lg"
             >
-              <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrValue)}`}
-                alt="QRIS Payment Code"
-                className="w-56 h-56 object-contain"
-              />
+              {qrImageUrl ? (
+                <img 
+                  src={qrImageUrl}
+                  alt="QRIS Payment Code"
+                  className="w-56 h-56 object-contain"
+                />
+              ) : (
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrValue)}`}
+                  alt="QRIS Payment Code"
+                  className="w-56 h-56 object-contain"
+                />
+              )}
             </motion.div>
           </div>
           
