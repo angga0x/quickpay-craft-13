@@ -1,128 +1,128 @@
-# QuickPay Craft
+# QuickPay Pojokdigi
 
-A modern payment solution integrated with Digiflazz API.
+Solusi pembayaran modern yang terintegrasi dengan API Digiflazz.
 
-## Project Structure
+## Struktur Proyek
 
 ```
 quickpay-craft-13/
-├── src/               # Frontend source code
-├── backend/           # Backend source code
-│   ├── src/          # Backend TypeScript files
-│   └── dist/         # Compiled backend code
-├── dist/             # Compiled frontend code
-└── public/           # Static assets
+├── src/               # Kode sumber frontend
+├── backend/           # Kode sumber backend
+│   ├── src/          # File TypeScript backend
+│   └── dist/         # Kode backend yang sudah dikompilasi
+├── dist/             # Kode frontend yang sudah dikompilasi
+└── public/           # Aset statis
 ```
 
-## Prerequisites
+## Prasyarat
 
-- Node.js 18 or higher
-- npm 9 or higher
+- Node.js 18 atau lebih tinggi
+- npm 9 atau lebih tinggi
 
-## Development Setup
+## Pengaturan Pengembangan
 
-1. Clone the repository:
+1. Kloning repositori:
 ```bash
-git clone [repository-url]
+git clone [url-repositori]
 cd quickpay-craft-13
 ```
 
-2. Install dependencies:
+2. Instal dependensi:
 ```bash
 npm install
 ```
 
-3. Set up environment variables:
+3. Siapkan variabel lingkungan:
 ```bash
-# Copy example environment files
+# Salin file lingkungan contoh
 cp backend/.env.example backend/.env
 ```
 
-4. Update the environment variables in `backend/.env` with your credentials:
-- `DIGIFLAZZ_USERNAME`: Your Digiflazz username
-- `DIGIFLAZZ_DEV_KEY`: Your Digiflazz development key
-- Other variables as needed
+4. Perbarui variabel lingkungan di `backend/.env` dengan kredensial Anda:
+- `DIGIFLAZZ_USERNAME`: Nama pengguna Digiflazz Anda
+- `DIGIFLAZZ_DEV_KEY`: Kunci pengembangan Digiflazz Anda
+- Variabel lain sesuai kebutuhan
 
-5. Start development servers:
+5. Mulai server pengembangan:
 
-For frontend:
+Untuk frontend:
 ```bash
 npm run dev
 ```
 
-For backend:
+Untuk backend:
 ```bash
 cd backend
 npm run dev
 ```
 
-## Building for Production
+## Membangun untuk Produksi
 
-1. Build the entire project (frontend and backend):
+1. Bangun seluruh proyek (frontend dan backend):
 ```bash
 npm run build
 ```
 
-This will:
-- Build the frontend (TypeScript compilation and Vite build)
-- Build the backend (TypeScript compilation)
-- Install all necessary dependencies
+Ini akan:
+- Membangun frontend (kompilasi TypeScript dan build Vite)
+- Membangun backend (kompilasi TypeScript)
+- Menginstal semua dependensi yang diperlukan
 
-2. The build output will be:
+2. Output build akan berada di:
 - Frontend: `./dist/`
 - Backend: `./backend/dist/`
 
-## Production Deployment
+## Deployment Produksi
 
-1. Set up production environment variables:
+1. Siapkan variabel lingkungan produksi:
 ```bash
-# In backend/.env
+# Di backend/.env
 NODE_ENV=production
-FRONTEND_URL=https://your-frontend-domain.com
-PUBLIC_URL=https://your-backend-domain.com
-DIGIFLAZZ_USERNAME=your_production_username
-DIGIFLAZZ_DEV_KEY=your_production_key
+FRONTEND_URL=https://domain-frontend-anda.com
+PUBLIC_URL=https://domain-backend-anda.com
+DIGIFLAZZ_USERNAME=username_produksi_anda
+DIGIFLAZZ_DEV_KEY=kunci_produksi_anda
 ```
 
-2. Start the production server:
+2. Mulai server produksi:
 ```bash
 npm run start
 ```
 
-## API Endpoints
+## Titik Akhir API (Endpoints)
 
-### Transaction API
+### API Transaksi
 - `POST /api/transaction`
-  - Create a new transaction
+  - Membuat transaksi baru
   - Body: `{ product_code, customer_id, ref_id }`
 
-### Callback API
+### API Callback
 - `POST /api/callback/digiflazz`
-  - Webhook endpoint for Digiflazz callbacks
-  - Handles transaction status updates
+  - Endpoint webhook untuk callback Digiflazz
+  - Menangani pembaruan status transaksi
 
-## Features
+## Fitur
 
-- Secure API key management
-- Transaction processing
-- Webhook handling for callbacks
-- Development and production environments
-- CORS configuration
-- TypeScript support
+- Manajemen kunci API yang aman
+- Pemrosesan transaksi
+- Penanganan webhook untuk callback
+- Lingkungan pengembangan dan produksi
+- Konfigurasi CORS
+- Dukungan TypeScript
 
-## Security Notes
+## Catatan Keamanan
 
-- Never commit `.env` files
-- Use appropriate environment variables for different environments
-- Keep API keys secure
-- Validate all incoming webhook signatures in production
+- Jangan pernah commit file `.env`
+- Gunakan variabel lingkungan yang sesuai untuk lingkungan yang berbeda
+- Jaga keamanan kunci API
+- Validasi semua tanda tangan webhook yang masuk pada produksi
 
-## Contributing
+## Kontribusi
 
-1. Create a feature branch
-2. Make your changes
-3. Submit a pull request
+1. Buat branch fitur
+2. Buat perubahan Anda
+3. Kirim pull request
 
-## License
+## Lisensi
 
 ISC
