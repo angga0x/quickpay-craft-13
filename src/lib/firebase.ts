@@ -17,12 +17,13 @@ import {
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBFvOQl0DiXJJ6-Y7wfyuCCDEXKiuCqDpM",
-  authDomain: "ppob-app-demo.firebaseapp.com",
-  projectId: "ppob-app-demo",
-  storageBucket: "ppob-app-demo.appspot.com",
-  messagingSenderId: "851204211589",
-  appId: "1:851204211589:web:54ebab7e7c5c0ce44e1a22"
+  apiKey: "AIzaSyBjBKTXt-OHIl7HkpxjYo5_rX302vL4yi8",
+  authDomain: "ppob-28e1b.firebaseapp.com",
+  projectId: "ppob-28e1b",
+  storageBucket: "ppob-28e1b.firebasestorage.app",
+  messagingSenderId: "475667484293",
+  appId: "1:475667484293:web:cb8adc9b07662c696ce3ec",
+  measurementId: "G-6BRP87Y2NS"
 };
 
 // Initialize Firebase once - in a real app, use environment variables for config
