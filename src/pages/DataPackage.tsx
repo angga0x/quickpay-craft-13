@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -86,8 +85,8 @@ const DataPackage = () => {
     } catch (error) {
       console.error('Error fetching products:', error);
       toast({
-        title: 'Failed to load products',
-        description: 'Please try again later',
+        title: 'Gagal memuat produk',
+        description: 'Silakan coba lagi nanti',
         variant: 'destructive',
       });
     } finally {
@@ -151,9 +150,9 @@ const DataPackage = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-medium">Data Package</h1>
+            <h1 className="text-2xl font-medium">Paket Data</h1>
             <p className="text-sm text-muted-foreground">
-              Purchase internet data packages
+              Beli paket data internet
             </p>
           </div>
         </motion.div>
@@ -166,7 +165,7 @@ const DataPackage = () => {
                 {/* Filter Controls */}
                 <div className="flex flex-col sm:flex-row gap-3 sm:items-center mb-6">
                   <SearchInput 
-                    placeholder="Search data package..." 
+                    placeholder="Cari paket data..." 
                     value={searchTerm} 
                     onChange={setSearchTerm}
                     className="w-full sm:w-60"
@@ -178,12 +177,12 @@ const DataPackage = () => {
                     </Label>
                     <Select value={operator} onValueChange={setOperator}>
                       <SelectTrigger id="operator-filter" className="w-full sm:w-36">
-                        <SelectValue placeholder="All Operators" />
+                        <SelectValue placeholder="Semua Operator" />
                       </SelectTrigger>
                       <SelectContent>
                         {operators.map((op, index) => (
                           <SelectItem key={index} value={op}>
-                            {op === 'all' ? 'All Operators' : op}
+                            {op === 'all' ? 'Semua Operator' : op}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -223,7 +222,7 @@ const DataPackage = () => {
                   </div>
                 ) : (
                   <div className="py-12 text-center">
-                    <p className="text-muted-foreground">No packages found matching your criteria</p>
+                    <p className="text-muted-foreground">Tidak ada paket yang sesuai dengan kriteria Anda</p>
                     <Button 
                       variant="link" 
                       onClick={() => { 
@@ -231,7 +230,7 @@ const DataPackage = () => {
                         setOperator('all'); 
                       }}
                     >
-                      Reset filters
+                      Atur ulang filter
                     </Button>
                   </div>
                 )}
@@ -249,14 +248,14 @@ const DataPackage = () => {
                       <Radio className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Customer Details</h3>
-                      <p className="text-xs text-muted-foreground">Enter recipient phone number</p>
+                      <h3 className="font-medium">Detail Pelanggan</h3>
+                      <p className="text-xs text-muted-foreground">Masukkan nomor telepon penerima</p>
                     </div>
                   </div>
                   
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="phone-number">Phone Number</Label>
+                      <Label htmlFor="phone-number">Nomor Telepon</Label>
                       <Input 
                         id="phone-number"
                         placeholder="0812-3456-7890"
@@ -265,7 +264,7 @@ const DataPackage = () => {
                         className={`${!isPhoneValid && phoneNumber ? 'border-red-300 focus-visible:ring-red-400' : ''}`}
                       />
                       {!isPhoneValid && phoneNumber && (
-                        <p className="text-xs text-red-500">Please enter a valid phone number</p>
+                        <p className="text-xs text-red-500">Masukkan nomor telepon yang valid</p>
                       )}
                     </div>
                   </div>
@@ -280,7 +279,7 @@ const DataPackage = () => {
                 disabled={!selectedProduct || !isPhoneValid}
                 onClick={handleContinue}
               >
-                Continue to Checkout
+                Lanjut ke Pembayaran
               </Button>
             </SlideUp>
           </div>

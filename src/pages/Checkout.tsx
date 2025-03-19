@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -110,14 +109,14 @@ const Checkout = () => {
       }
       
       toast({
-        title: "Payment processing",
-        description: "Please complete the payment",
+        title: "Pemrosesan pembayaran",
+        description: "Silakan selesaikan pembayaran",
       });
     } catch (error) {
       console.error('Error processing payment:', error);
       toast({
-        title: 'Payment processing failed',
-        description: 'Please try again later',
+        title: 'Pemrosesan pembayaran gagal',
+        description: 'Silakan coba lagi nanti',
         variant: 'destructive',
       });
     } finally {
@@ -128,8 +127,8 @@ const Checkout = () => {
   
   const handleDownloadQR = () => {
     toast({
-      title: "QR Code saved",
-      description: "QR code has been saved to your device"
+      title: "QR Code tersimpan",
+      description: "QR code telah disimpan ke perangkat Anda"
     });
   };
   
@@ -170,9 +169,9 @@ const Checkout = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-medium">Checkout</h1>
+            <h1 className="text-2xl font-medium">Pembayaran</h1>
             <p className="text-sm text-muted-foreground">
-              Review your order and complete payment
+              Tinjau pesanan dan selesaikan pembayaran
             </p>
           </div>
         </motion.div>
@@ -187,19 +186,19 @@ const Checkout = () => {
                       <Receipt className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Order Summary</h3>
-                      <p className="text-xs text-muted-foreground">Review your purchase details</p>
+                      <h3 className="font-medium">Ringkasan Pesanan</h3>
+                      <p className="text-xs text-muted-foreground">Tinjau detail pembelian Anda</p>
                     </div>
                   </div>
                   
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-sm text-muted-foreground">Product</h4>
+                      <h4 className="text-sm text-muted-foreground">Produk</h4>
                       <p className="font-medium">{selectedProduct.name}</p>
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      <h4 className="text-sm text-muted-foreground">Customer</h4>
+                      <h4 className="text-sm text-muted-foreground">Pelanggan</h4>
                       <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-full text-xs">
                         {getCustomerIcon()}
                         <span>{getCustomerDetail()}</span>
@@ -208,7 +207,7 @@ const Checkout = () => {
                     
                     {selectedProduct.details && (
                       <div className="space-y-2">
-                        <h4 className="text-sm text-muted-foreground">Details</h4>
+                        <h4 className="text-sm text-muted-foreground">Detail</h4>
                         <div className="bg-muted/50 rounded-md p-3 space-y-2">
                           {selectedProduct.details.map((detail, index) => (
                             <div key={index} className="flex justify-between items-center text-sm">
@@ -231,7 +230,7 @@ const Checkout = () => {
                       </div>
                       
                       <div className="flex justify-between items-center mt-1">
-                        <span className="text-muted-foreground">Fee</span>
+                        <span className="text-muted-foreground">Biaya Admin</span>
                         <span>Rp0</span>
                       </div>
                       
@@ -267,8 +266,8 @@ const Checkout = () => {
                         <Mail className="h-5 w-5 text-green-600 dark:text-green-400" />
                       </div>
                       <div>
-                        <h3 className="font-medium">Notification</h3>
-                        <p className="text-xs text-muted-foreground">We'll send updates to</p>
+                        <h3 className="font-medium">Notifikasi</h3>
+                        <p className="text-xs text-muted-foreground">Kami akan mengirim pembaruan ke</p>
                       </div>
                     </div>
                     
@@ -282,11 +281,11 @@ const Checkout = () => {
                       onClick={handleProcessPayment}
                       disabled={isProcessing}
                     >
-                      {isProcessing ? 'Processing...' : 'Pay Now'}
+                      {isProcessing ? 'Memproses...' : 'Bayar Sekarang'}
                     </Button>
                     
                     <p className="text-xs text-center text-muted-foreground">
-                      By proceeding, you agree to our Terms and Privacy Policy
+                      Dengan melanjutkan, Anda menyetujui Syarat dan Kebijakan Privasi kami
                     </p>
                   </CardContent>
                 </Card>

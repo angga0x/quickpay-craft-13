@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -126,8 +125,8 @@ const MobileCredit = () => {
     } catch (error) {
       console.error('Error fetching products:', error);
       toast({
-        title: 'Failed to load products',
-        description: 'Please try again later',
+        title: 'Gagal memuat produk',
+        description: 'Silakan coba lagi nanti',
         variant: 'destructive',
       });
       
@@ -157,8 +156,8 @@ const MobileCredit = () => {
           
           setProducts(mappedProducts);
           toast({
-            title: 'Using cached products',
-            description: 'Could not fetch fresh data from provider',
+            title: 'Menggunakan produk tersimpan',
+            description: 'Tidak dapat mengambil data terbaru dari penyedia',
             variant: 'default',
           });
         }
@@ -227,9 +226,9 @@ const MobileCredit = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-medium">Mobile Credit</h1>
+            <h1 className="text-2xl font-medium">Pulsa</h1>
             <p className="text-sm text-muted-foreground">
-              Purchase phone credit for any operator
+              Beli pulsa untuk semua operator
             </p>
           </div>
         </motion.div>
@@ -242,7 +241,7 @@ const MobileCredit = () => {
                 {/* Filter Controls */}
                 <div className="flex flex-col sm:flex-row gap-3 sm:items-center mb-6">
                   <SearchInput 
-                    placeholder="Search product..." 
+                    placeholder="Cari produk..." 
                     value={searchTerm} 
                     onChange={setSearchTerm}
                     className="w-full sm:w-60"
@@ -299,7 +298,7 @@ const MobileCredit = () => {
                   </div>
                 ) : (
                   <div className="py-12 text-center">
-                    <p className="text-muted-foreground">No products found matching your criteria</p>
+                    <p className="text-muted-foreground">Tidak ada produk yang sesuai dengan kriteria Anda</p>
                     <Button 
                       variant="link" 
                       onClick={() => { 
@@ -307,7 +306,7 @@ const MobileCredit = () => {
                         setOperator('all'); 
                       }}
                     >
-                      Reset filters
+                      Atur ulang filter
                     </Button>
                   </div>
                 )}
@@ -325,14 +324,14 @@ const MobileCredit = () => {
                       <CreditCard className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Customer Details</h3>
-                      <p className="text-xs text-muted-foreground">Enter recipient phone number</p>
+                      <h3 className="font-medium">Detail Pelanggan</h3>
+                      <p className="text-xs text-muted-foreground">Masukkan nomor telepon penerima</p>
                     </div>
                   </div>
                   
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="phone-number">Phone Number</Label>
+                      <Label htmlFor="phone-number">Nomor Telepon</Label>
                       <Input 
                         id="phone-number"
                         placeholder="0812-3456-7890"
@@ -341,7 +340,7 @@ const MobileCredit = () => {
                         className={`${!isPhoneValid && phoneNumber ? 'border-red-300 focus-visible:ring-red-400' : ''}`}
                       />
                       {!isPhoneValid && phoneNumber && (
-                        <p className="text-xs text-red-500">Please enter a valid phone number</p>
+                        <p className="text-xs text-red-500">Masukkan nomor telepon yang valid</p>
                       )}
                     </div>
                   </div>
@@ -356,7 +355,7 @@ const MobileCredit = () => {
                 disabled={!selectedProduct || !isPhoneValid}
                 onClick={handleContinue}
               >
-                Continue to Checkout
+                Lanjut ke Pembayaran
               </Button>
             </SlideUp>
           </div>

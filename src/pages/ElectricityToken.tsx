@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -75,8 +74,8 @@ const ElectricityToken = () => {
     } catch (error) {
       console.error('Error fetching products:', error);
       toast({
-        title: 'Failed to load products',
-        description: 'Please try again later',
+        title: 'Gagal memuat produk',
+        description: 'Silakan coba lagi nanti',
         variant: 'destructive',
       });
     } finally {
@@ -144,9 +143,9 @@ const ElectricityToken = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-medium">Electricity Token</h1>
+            <h1 className="text-2xl font-medium">Token Listrik</h1>
             <p className="text-sm text-muted-foreground">
-              Purchase PLN prepaid electricity tokens
+              Beli token listrik prabayar PLN
             </p>
           </div>
         </motion.div>
@@ -159,7 +158,7 @@ const ElectricityToken = () => {
                 {/* Filter Controls */}
                 <div className="flex flex-col sm:flex-row gap-3 sm:items-center mb-6">
                   <SearchInput 
-                    placeholder="Search token amount..." 
+                    placeholder="Cari nominal token..." 
                     value={searchTerm} 
                     onChange={setSearchTerm}
                     className="w-full sm:w-60"
@@ -198,12 +197,12 @@ const ElectricityToken = () => {
                   </div>
                 ) : (
                   <div className="py-12 text-center">
-                    <p className="text-muted-foreground">No tokens found matching your search</p>
+                    <p className="text-muted-foreground">Tidak ada token yang sesuai dengan pencarian Anda</p>
                     <Button 
                       variant="link" 
                       onClick={() => setSearchTerm('')}
                     >
-                      Show all tokens
+                      Tampilkan semua token
                     </Button>
                   </div>
                 )}
@@ -221,14 +220,14 @@ const ElectricityToken = () => {
                       <Zap className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Customer Details</h3>
-                      <p className="text-xs text-muted-foreground">Enter your meter information</p>
+                      <h3 className="font-medium">Detail Pelanggan</h3>
+                      <p className="text-xs text-muted-foreground">Masukkan informasi meteran Anda</p>
                     </div>
                   </div>
                   
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="meter-number">Meter Number</Label>
+                      <Label htmlFor="meter-number">Nomor Meteran</Label>
                       <Input 
                         id="meter-number"
                         placeholder="1234-5678-9012"
@@ -237,13 +236,13 @@ const ElectricityToken = () => {
                         className={`${!isMeterValid && meterNumber ? 'border-red-300 focus-visible:ring-red-400' : ''}`}
                       />
                       {!isMeterValid && meterNumber && (
-                        <p className="text-xs text-red-500">Please enter a valid meter number</p>
+                        <p className="text-xs text-red-500">Masukkan nomor meteran yang valid</p>
                       )}
                     </div>
                     
                     {customerName && (
                       <div className="p-3 bg-muted/50 rounded-md">
-                        <p className="text-xs text-muted-foreground">Customer Name</p>
+                        <p className="text-xs text-muted-foreground">Nama Pelanggan</p>
                         <p className="font-medium">{customerName}</p>
                       </div>
                     )}
@@ -259,7 +258,7 @@ const ElectricityToken = () => {
                 disabled={!isFormValid}
                 onClick={handleContinue}
               >
-                Continue to Checkout
+                Lanjut ke Pembayaran
               </Button>
             </SlideUp>
           </div>

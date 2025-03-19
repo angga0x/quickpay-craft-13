@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -63,8 +62,8 @@ const TransactionDetail = () => {
         
         if (!data) {
           toast({
-            title: 'Transaction not found',
-            description: 'The transaction you are looking for does not exist',
+            title: 'Transaksi tidak ditemukan',
+            description: 'Transaksi yang Anda cari tidak ada',
             variant: 'destructive',
           });
           navigate('/');
@@ -75,8 +74,8 @@ const TransactionDetail = () => {
       } catch (error) {
         console.error('Error fetching transaction:', error);
         toast({
-          title: 'Failed to load transaction',
-          description: 'Please try again later',
+          title: 'Gagal memuat transaksi',
+          description: 'Silakan coba lagi nanti',
           variant: 'destructive',
         });
       } finally {
@@ -109,28 +108,28 @@ const TransactionDetail = () => {
       
       if (response.status === 'success') {
         toast({
-          title: 'Payment successful',
-          description: 'Your transaction has been completed',
+          title: 'Pembayaran berhasil',
+          description: 'Transaksi Anda telah selesai',
           variant: 'default',
         });
       } else if (response.status === 'failed') {
         toast({
-          title: 'Payment failed',
-          description: response.details?.message || 'Transaction could not be completed',
+          title: 'Pembayaran gagal',
+          description: response.details?.message || 'Transaksi tidak dapat diselesaikan',
           variant: 'destructive',
         });
       } else {
         toast({
-          title: 'Payment pending',
-          description: 'Your payment is still being processed',
+          title: 'Pembayaran tertunda',
+          description: 'Pembayaran Anda masih diproses',
           variant: 'default',
         });
       }
     } catch (error) {
       console.error('Error checking status:', error);
       toast({
-        title: 'Status check failed',
-        description: 'Please try again later',
+        title: 'Gagal memeriksa status',
+        description: 'Silakan coba lagi nanti',
         variant: 'destructive',
       });
     } finally {
@@ -144,15 +143,15 @@ const TransactionDetail = () => {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'Transaction Details',
-          text: `${transaction.product_name} for ${transaction.customer_id}`,
+          title: 'Detail Transaksi',
+          text: `${transaction.product_name} untuk ${transaction.customer_id}`,
           url: window.location.href
         });
       } else {
         await navigator.clipboard.writeText(window.location.href);
         toast({
-          title: 'Link copied',
-          description: 'Transaction link copied to clipboard',
+          title: 'Tautan disalin',
+          description: 'Tautan transaksi disalin ke clipboard',
         });
       }
     } catch (error) {
@@ -211,13 +210,13 @@ const TransactionDetail = () => {
   };
   
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('id-ID', {
       year: 'numeric',
-      month: 'short',
+      month: 'long',
       day: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
-      hour12: true
+      hour12: false
     }).format(date);
   };
   
@@ -256,9 +255,9 @@ const TransactionDetail = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-2xl font-medium">Transaction Details</h1>
+            <h1 className="text-2xl font-medium">Detail Transaksi</h1>
             <p className="text-sm text-muted-foreground">
-              {transaction ? `Reference: ${transaction.reference_id}` : 'Loading transaction details...'}
+              {transaction ? `Referensi: ${transaction.reference_id}` : 'Memuat detail transaksi...'}
             </p>
           </div>
           
@@ -305,27 +304,27 @@ const TransactionDetail = () => {
                       
                       <div className="flex flex-col gap-1">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Transaction ID</span>
+                          <span className="text-sm text-muted-foreground">ID Transaksi</span>
                           <span className="text-sm font-mono">{transaction.transaction_id}</span>
                         </div>
                         
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Reference ID</span>
+                          <span className="text-sm text-muted-foreground">ID Referensi</span>
                           <span className="text-sm font-mono">{transaction.reference_id}</span>
                         </div>
                         
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Customer</span>
+                          <span className="text-sm text-muted-foreground">Pelanggan</span>
                           <span className="text-sm">{transaction.customer_id}</span>
                         </div>
                         
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Amount</span>
+                          <span className="text-sm text-muted-foreground">Jumlah</span>
                           <span className="text-sm font-medium">{formatCurrency(transaction.amount)}</span>
                         </div>
                         
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Date & Time</span>
+                          <span className="text-sm text-muted-foreground">Tanggal & Waktu</span>
                           <span className="text-sm">{formatDate(transaction.created_at)}</span>
                         </div>
                       </div>
@@ -335,12 +334,12 @@ const TransactionDetail = () => {
                           <Separator />
                           
                           <div className="space-y-3">
-                            <h4 className="text-sm font-medium">Transaction Details</h4>
+                            <h4 className="text-sm font-medium">Detail Transaksi</h4>
                             
                             <div className="bg-muted/50 rounded-md p-3 space-y-2">
                               {transaction.details.serial_number && (
                                 <div className="flex justify-between items-center text-sm">
-                                  <span className="text-muted-foreground">Serial Number</span>
+                                  <span className="text-muted-foreground">Nomor Seri</span>
                                   <span className="font-mono">{transaction.details.serial_number}</span>
                                 </div>
                               )}
@@ -354,7 +353,7 @@ const TransactionDetail = () => {
                               
                               {transaction.details.message && (
                                 <div className="text-sm">
-                                  <span className="text-muted-foreground">Message</span>
+                                  <span className="text-muted-foreground">Pesan</span>
                                   <p className="mt-1">{transaction.details.message}</p>
                                 </div>
                               )}
@@ -368,7 +367,7 @@ const TransactionDetail = () => {
                           <Separator />
                           
                           <div className="space-y-3">
-                            <h4 className="text-sm font-medium">Failure Reason</h4>
+                            <h4 className="text-sm font-medium">Alasan Kegagalan</h4>
                             
                             <div className="bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 rounded-md p-3">
                               <p className="text-sm">{transaction.details.message}</p>
@@ -379,9 +378,9 @@ const TransactionDetail = () => {
                     </>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-12 text-center">
-                      <p className="text-muted-foreground">Transaction not found</p>
+                      <p className="text-muted-foreground">Transaksi tidak ditemukan</p>
                       <Button variant="link" onClick={() => navigate('/')}>
-                        Return to home
+                        Kembali ke beranda
                       </Button>
                     </div>
                   )}
@@ -398,7 +397,7 @@ const TransactionDetail = () => {
                   disabled={isChecking}
                 >
                   <RefreshCw className={`h-4 w-4 ${isChecking ? 'animate-spin' : ''}`} />
-                  {isChecking ? 'Checking Status...' : 'Check Status'}
+                  {isChecking ? 'Memeriksa Status...' : 'Periksa Status'}
                 </Button>
               </SlideUp>
             )}
@@ -424,11 +423,11 @@ const TransactionDetail = () => {
                     </div>
                     
                     <h3 className="text-xl font-medium text-green-800 dark:text-green-300 mb-2">
-                      Transaction Successful
+                      Transaksi Berhasil
                     </h3>
                     
                     <p className="text-green-700 dark:text-green-400 mb-6">
-                      Your transaction has been completed successfully
+                      Transaksi Anda telah berhasil diselesaikan
                     </p>
                     
                     <Button
@@ -436,7 +435,7 @@ const TransactionDetail = () => {
                       variant="outline"
                       className="border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/50"
                     >
-                      Back to Home
+                      Kembali ke Beranda
                     </Button>
                   </CardContent>
                 </Card>
@@ -452,11 +451,11 @@ const TransactionDetail = () => {
                     </div>
                     
                     <h3 className="text-xl font-medium text-red-800 dark:text-red-300 mb-2">
-                      Transaction Failed
+                      Transaksi Gagal
                     </h3>
                     
                     <p className="text-red-700 dark:text-red-400 mb-6">
-                      {transaction.details?.message || "Your transaction could not be completed"}
+                      {transaction.details?.message || "Transaksi Anda tidak dapat diselesaikan"}
                     </p>
                     
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -465,7 +464,7 @@ const TransactionDetail = () => {
                         variant="outline"
                         className="border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50"
                       >
-                        Back to Home
+                        Kembali ke Beranda
                       </Button>
                       
                       <Button
@@ -473,7 +472,7 @@ const TransactionDetail = () => {
                         variant="outline"
                         className="border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50"
                       >
-                        Try Again
+                        Coba Lagi
                       </Button>
                     </div>
                   </CardContent>

@@ -36,8 +36,8 @@ const Index = () => {
       } catch (error) {
         console.error('Error fetching transactions:', error);
         toast({
-          title: 'Failed to load transactions',
-          description: 'Please try again later',
+          title: 'Gagal memuat transaksi',
+          description: 'Silakan coba lagi nanti',
           variant: 'destructive',
         });
       } finally {
@@ -50,25 +50,25 @@ const Index = () => {
 
   const serviceCards = [
     {
-      title: 'Mobile Credit',
+      title: 'Pulsa',
       icon: <CreditCard className="h-5 w-5" />,
       color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300',
       link: '/mobile-credit',
     },
     {
-      title: 'Electricity',
+      title: 'Listrik',
       icon: <Zap className="h-5 w-5" />,
       color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-300',
       link: '/electricity',
     },
     {
-      title: 'Data Package',
+      title: 'Paket Data',
       icon: <Radio className="h-5 w-5" />,
       color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300',
       link: '/data-package',
     },
     {
-      title: 'Check Status',
+      title: 'Cek Status',
       icon: <Search className="h-5 w-5" />,
       color: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300',
       link: '/transaction-check',
@@ -90,7 +90,7 @@ const Index = () => {
             transition={{ delay: 0.1 }}
             className="text-3xl md:text-4xl font-medium text-center"
           >
-            Pay Your Bills Instantly
+            Bayar Tagihan Dengan Cepat
           </motion.h1>
           <motion.p 
             initial={{ y: 20, opacity: 0 }}
@@ -98,7 +98,7 @@ const Index = () => {
             transition={{ delay: 0.2 }}
             className="mt-4 text-center text-muted-foreground max-w-lg"
           >
-            Fast, secure, and convenient way to purchase mobile credits, electricity tokens, and data packages.
+            Cara cepat, aman, dan praktis untuk membeli pulsa, token listrik, dan paket data.
           </motion.p>
         </div>
       </motion.div>
@@ -107,7 +107,7 @@ const Index = () => {
       <SlideUp className="container max-w-5xl mx-auto -mt-12 px-6">
         <Card className="glass-card shadow-lg">
           <CardContent className="p-6">
-            <h2 className="text-xl font-medium mb-4">Our Services</h2>
+            <h2 className="text-xl font-medium mb-4">Layanan Kami</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {serviceCards.map((service, index) => (
                 <Link to={service.link} key={index}>
@@ -136,13 +136,13 @@ const Index = () => {
       >
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <div>
-            <h2 className="text-xl font-medium">Recent Transactions</h2>
-            <p className="text-sm text-muted-foreground">Your transaction history</p>
+            <h2 className="text-xl font-medium">Transaksi Terakhir</h2>
+            <p className="text-sm text-muted-foreground">Riwayat transaksi Anda</p>
           </div>
           
           <div className="flex items-center gap-3">
             <SearchInput 
-              placeholder="Search transaction..." 
+              placeholder="Cari transaksi..." 
               value={search} 
               onChange={setSearch}
               className="w-full md:w-60"
@@ -151,7 +151,7 @@ const Index = () => {
             <Link to="/transaction-check">
               <Button variant="outline" size="sm" className="whitespace-nowrap gap-2">
                 <Clock className="h-4 w-4" />
-                <span className="hidden sm:inline">View All</span>
+                <span className="hidden sm:inline">Lihat Semua</span>
               </Button>
             </Link>
           </div>
@@ -175,9 +175,9 @@ const Index = () => {
           </StaggerContainer>
         ) : (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <p className="text-muted-foreground">No recent transactions found</p>
+            <p className="text-muted-foreground">Tidak ada transaksi terbaru</p>
             <Button variant="link" asChild className="mt-2">
-              <Link to="/mobile-credit">Make your first transaction</Link>
+              <Link to="/mobile-credit">Buat transaksi pertama Anda</Link>
             </Button>
           </div>
         )}
@@ -191,7 +191,7 @@ const MOCK_TRANSACTIONS: UITransaction[] = [
   {
     id: '1',
     type: 'mobile-credit',
-    productName: 'Telkomsel 100,000',
+    productName: 'Telkomsel 100.000',
     amount: 100000,
     customerDetail: '0812-3456-7890',
     status: 'success',
@@ -200,7 +200,7 @@ const MOCK_TRANSACTIONS: UITransaction[] = [
   {
     id: '2',
     type: 'electricity',
-    productName: 'Token Listrik 200,000',
+    productName: 'Token Listrik 200.000',
     amount: 200000,
     customerDetail: '1234-5678-9012',
     status: 'pending',

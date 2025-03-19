@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -30,8 +29,8 @@ const TransactionCheck = () => {
   const handleSearch = async () => {
     if (!reference.trim()) {
       toast({
-        title: 'Please enter a reference',
-        description: 'Enter transaction ID or reference ID',
+        title: 'Masukkan referensi',
+        description: 'Masukkan ID transaksi atau ID referensi',
         variant: 'default',
       });
       return;
@@ -81,16 +80,16 @@ const TransactionCheck = () => {
       } else {
         setNotFound(true);
         toast({
-          title: 'Transaction not found',
-          description: 'We could not find a transaction with this reference',
+          title: 'Transaksi tidak ditemukan',
+          description: 'Kami tidak dapat menemukan transaksi dengan referensi ini',
           variant: 'default',
         });
       }
     } catch (error) {
       console.error('Error searching transaction:', error);
       toast({
-        title: 'Search failed',
-        description: 'Please try again later',
+        title: 'Pencarian gagal',
+        description: 'Silakan coba lagi nanti',
         variant: 'destructive',
       });
     } finally {
@@ -121,9 +120,9 @@ const TransactionCheck = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-medium">Check Transaction</h1>
+            <h1 className="text-2xl font-medium">Cek Transaksi</h1>
             <p className="text-sm text-muted-foreground">
-              Find transaction using reference or transaction ID
+              Temukan transaksi menggunakan referensi atau ID transaksi
             </p>
           </div>
         </motion.div>
@@ -137,8 +136,8 @@ const TransactionCheck = () => {
                     <Receipt className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Transaction Lookup</h3>
-                    <p className="text-xs text-muted-foreground">Enter reference ID or transaction ID</p>
+                    <h3 className="font-medium">Pencarian Transaksi</h3>
+                    <p className="text-xs text-muted-foreground">Masukkan ID referensi atau ID transaksi</p>
                   </div>
                 </div>
                 
@@ -146,7 +145,7 @@ const TransactionCheck = () => {
                   <div className="relative">
                     <Input
                       id="reference"
-                      placeholder="Enter reference or transaction ID"
+                      placeholder="Masukkan referensi atau ID transaksi"
                       value={reference}
                       onChange={handleReferenceChange}
                       className="pr-10"
@@ -159,7 +158,7 @@ const TransactionCheck = () => {
                     onClick={handleSearch}
                     disabled={isSearching || !reference.trim()}
                   >
-                    {isSearching ? 'Searching...' : 'Search Transaction'}
+                    {isSearching ? 'Mencari...' : 'Cari Transaksi'}
                   </Button>
                 </div>
               </CardContent>
@@ -173,14 +172,14 @@ const TransactionCheck = () => {
           {searchResult && (
             <SlideUp>
               <div className="space-y-3">
-                <h3 className="text-lg font-medium">Search Result</h3>
+                <h3 className="text-lg font-medium">Hasil Pencarian</h3>
                 <RecentTransactionCard 
                   transaction={searchResult}
                   onClick={handleViewTransaction}
                 />
                 <div className="flex justify-center">
                   <Button onClick={handleViewTransaction}>
-                    View Details
+                    Lihat Detail
                   </Button>
                 </div>
               </div>
@@ -196,12 +195,12 @@ const TransactionCheck = () => {
                   </div>
                   
                   <h3 className="text-lg font-medium mb-2">
-                    No Transaction Found
+                    Transaksi Tidak Ditemukan
                   </h3>
                   
                   <p className="text-muted-foreground mb-4">
-                    We couldn't find a transaction with the provided reference.
-                    Please check the ID and try again.
+                    Kami tidak dapat menemukan transaksi dengan referensi yang diberikan.
+                    Silakan periksa ID dan coba lagi.
                   </p>
                 </CardContent>
               </Card>
