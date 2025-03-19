@@ -2,8 +2,8 @@ import axios from 'axios';
 import { PriceType, MobileCreditProduct, ElectricityProduct, DataPackageProduct } from './api';
 import CryptoJS from 'crypto-js';
 
-// Digiflazz API URL
-const API_URL = 'https://api.digiflazz.com/v1';
+// API URL (backend proxy)
+const API_URL = import.meta.env.DEV ? 'http://localhost:3000/api' : 'https://your-production-backend.com/api';
 
 // Default profit margins in percentage
 const DEFAULT_MARGINS = {
@@ -90,20 +90,21 @@ const formatDataPackageProduct = (item: any): DataPackageProduct => {
   };
 };
 
-// Use CORS proxy for local environments
+// Use backend proxy for all environments
 const makeApiRequest = async (endpoint: string, payload: any) => {
   try {
     console.log(`Making request to ${endpoint} with payload:`, payload);
     
-    // Use CORS proxy for local development and preview
-    if (import.meta.env.DEV || window.location.hostname === 'localhost') {
-      const corsProxyUrl = 'https://cors-anywhere.herokuapp.com/' + `${API_URL}/${endpoint}`;
-      console.log('Using CORS proxy URL:', corsProxyUrl);
-      return axios.post(corsProxyUrl, payload);
-    }
+    // Map Digiflazz endpoints to our backend endpoints
+    const endpointMap: { [key: string]: string } = {
+      'price-list': 'price-list',
+      'transaction': 'transaction',
+      'transaction-status': 'transaction/status'
+    };
     
-    // In production, make direct request (assuming backend handles CORS)
-    return axios.post(`${API_URL}/${endpoint}`, payload);
+    const backendEndpoint = endpointMap[endpoint] || endpoint;
+    const response = await axios.post(`${API_URL}/${backendEndpoint}`, payload);
+    return response;
   } catch (error) {
     console.error(`Error making request to ${endpoint}:`, error);
     throw error;
