@@ -4,10 +4,9 @@ import axios from 'axios';
 // TokoPay API URL
 const API_URL = 'https://api.tokopay.id/v1/order';
 
-// API credentials
-// In a real app, these should be stored in environment variables
-const MERCHANT_ID = import.meta.env.VITE_TOKOPAY_MERCHANT_ID || 'demo';
-const SECRET = import.meta.env.VITE_TOKOPAY_SECRET || 'demo-secret';
+// API credentials - Using real credentials
+const MERCHANT_ID = 'M240413YAXSU201';
+const SECRET = 'ed4d5ab0c6d03b93ee8375fac4afec7b183e42ba97545d741ec063476ab8fc43';
 
 type TokopayOrderRequest = {
   ref_id: string;
@@ -32,7 +31,7 @@ type TokopayOrderResponse = {
 
 export const createPaymentOrder = async (data: TokopayOrderRequest): Promise<TokopayOrderResponse> => {
   try {
-    // In DEV environment, we can use a mock API response
+    // In DEV environment, we can still use a mock API response for testing
     if (import.meta.env.DEV && !import.meta.env.VITE_USE_TOKOPAY) {
       console.log('Using mock TokoPay API response for payment processing', data);
       
@@ -55,7 +54,7 @@ export const createPaymentOrder = async (data: TokopayOrderRequest): Promise<Tok
       };
     }
     
-    // Build the API URL with query parameters
+    // Build the API URL with query parameters for the real API call
     const url = `${API_URL}?merchant=${MERCHANT_ID}&secret=${SECRET}&ref_id=${data.ref_id}&nominal=${data.nominal}&metode=${data.metode}`;
     
     const response = await axios.get(url);
@@ -87,7 +86,7 @@ export const checkPaymentStatus = async (ref_id: string): Promise<any> => {
       };
     }
     
-    // Build the status check URL
+    // Build the status check URL for the real API
     const url = `https://api.tokopay.id/v1/status?merchant=${MERCHANT_ID}&secret=${SECRET}&ref_id=${ref_id}`;
     
     const response = await axios.get(url);
