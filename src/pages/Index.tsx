@@ -8,7 +8,7 @@ import { CreditCard, Zap, Radio, Search, Clock } from 'lucide-react';
 import SearchInput from '@/components/ui-custom/SearchInput';
 import RecentTransactionCard, { Transaction as UITransaction } from '@/components/ui-custom/RecentTransactionCard';
 import { StaggerContainer, StaggerItem, SlideUp } from '@/components/ui-custom/TransitionEffect';
-import { getRecentTransactions, toRecentTransactionFormat } from '@/lib/firebase';
+import { getRecentTransactions, toRecentTransactionFormat } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {

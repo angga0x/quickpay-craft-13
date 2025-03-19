@@ -6,9 +6,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Search, Receipt, AlertCircle } from 'lucide-react';
 import PageTransition, { SlideUp } from '@/components/ui-custom/TransitionEffect';
-import { findTransactionByReference, toRecentTransactionFormat } from '@/lib/firebase';
+import { findTransactionByReference, toRecentTransactionFormat } from '@/lib/supabase';
 import { checkPaymentStatus } from '@/lib/tokopay';
-import RecentTransactionCard, { Transaction as UITransaction } from '@/components/ui-custom/RecentTransactionCard';
+import RecentTransactionCard, { Transaction } from '@/components/ui-custom/RecentTransactionCard';
 import { useToast } from '@/hooks/use-toast';
 
 const TransactionCheck = () => {
@@ -16,7 +16,7 @@ const TransactionCheck = () => {
   const { toast } = useToast();
   const [reference, setReference] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResult, setSearchResult] = useState<UITransaction | null>(null);
+  const [searchResult, setSearchResult] = useState<Transaction | null>(null);
   const [notFound, setNotFound] = useState(false);
   
   const handleReferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,19 +53,17 @@ const TransactionCheck = () => {
         return;
       }
       
-      // Check transaction in Firebase first
+      // Check transaction in Supabase
       const result = await findTransactionByReference(reference.trim());
       
       if (result) {
-        // If found in Firebase, get the latest payment status from TokoPay
+        // If found in Supabase, get the latest payment status from TokoPay
         try {
-          const paymentStatus = await checkPaymentStatus(result.referenceId);
+          const paymentStatus = await checkPaymentStatus(result.reference_id);
           
           if (paymentStatus.status && paymentStatus.data) {
             // Update the status based on TokoPay's response
             if (paymentStatus.data.status === 'SUCCESS' && result.status !== 'success') {
-              // Here we would update the transaction status in Firebase, but for simplicity
-              // we'll just update the status in the UI
               result.status = 'success';
             } else if (paymentStatus.data.status === 'FAILED' && result.status !== 'failed') {
               result.status = 'failed';
@@ -79,17 +77,12 @@ const TransactionCheck = () => {
         setSearchResult(toRecentTransactionFormat(result));
       } else {
         setNotFound(true);
-        toast({
-          title: 'Transaksi tidak ditemukan',
-          description: 'Kami tidak dapat menemukan transaksi dengan referensi ini',
-          variant: 'default',
-        });
       }
     } catch (error) {
       console.error('Error searching transaction:', error);
       toast({
-        title: 'Pencarian gagal',
-        description: 'Silakan coba lagi nanti',
+        title: 'Error',
+        description: 'Failed to search transaction. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -212,7 +205,7 @@ const TransactionCheck = () => {
   );
 };
 
-const MOCK_TRANSACTION: UITransaction = {
+const MOCK_TRANSACTION: Transaction = {
   id: 'mock-transaction-id',
   type: 'mobile-credit',
   productName: 'Telkomsel 100,000',
