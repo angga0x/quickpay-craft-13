@@ -14,8 +14,10 @@ const DEFAULT_MARGINS = {
 
 // API credentials
 // In a real app, these should be stored in environment variables
-const USERNAME = import.meta.env.VITE_DIGIFLAZZ_USERNAME || 'demo';
-const API_KEY = import.meta.env.VITE_DIGIFLAZZ_API_KEY || 'demo-key';
+const USERNAME = import.meta.env.VITE_DIGIFLAZZ_USERNAME || 'foxepoWjxJqo';
+const DEV_API_KEY = 'dev-ac3455b0-ab16-11ec-bca1-e58e09781976';
+const PROD_API_KEY = 'e3dce8f6-2a22-5985-b8ef-dd10d81c704a';
+const API_KEY = import.meta.env.VITE_DIGIFLAZZ_PRODUCTION ? PROD_API_KEY : DEV_API_KEY;
 
 // Create signature for API requests
 const createSignature = (username: string): string => {
